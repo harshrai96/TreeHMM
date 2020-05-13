@@ -1,0 +1,9 @@
+# Initializing treeHMM with given parameters
+
+
+def initHMM (States, Symbols, treemat, startProbs = NULL, transProbs = NULL, emissionProbs = NULL)
+{
+	
+	nStates = len(States)
+
+}
