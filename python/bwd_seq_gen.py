@@ -1,89 +1,75 @@
+#!/usr/bin/env python3
 import numpy as np
 import pandas as pd
+import initHMM
 
 
-def bwd_seq_gen(mm,nlevel=100):
-	
-    adjm=hmm$adjsym#To change 
-    adjm= initHMM(adjsym)
+def bwd_seq_gen(hmm,nlevel=100):
 
-    pair=which(adjm!=0,arr.ind = TRUE)#To change
-    colnames(pair)=NULL#To change
-    roots=which(rowSums(adjm)==0 & colSums(adjm)!=0)#To change
-    order=list()
-    order[[1]]=roots#To change
-    for i in range(nlevel):
-    	prev_level=order[i]
-    	nxt_level = list()
-    	for j in len(prev_level):
-    		nxt_nodes
+  adjm=hmm["adjsym"]
+  pair = np.transpose(np.nonzero(adjm)) 
 
+  #colnames(pair)=NULL #To change
 
-
-
-
-
-bwd_seq_gen= function(hmm,nlevel=100)
-{
-  adjm=hmm$adjsym
-  pair=which(adjm!=0,arr.ind = TRUE)
-  colnames(pair)=NULL
-  roots=which(rowSums(adjm)==0 & colSums(adjm)!=0)
+  row_sums = np.sum(adjm,axis=1)
+  col_sums = np.sum(adjm,axis=0)
+  roots = np.where(np.logical_and(row_sums==0, col_sums!=0))[0] # np.array()
   order=list()
-  order[[1]]=roots
-  for(i in 1:nlevel)
-  {
-    prev_level=order[[i]]
-    nxt_level=c()
-    for(j in 1:length(prev_level))
-    {
-      nxt_nodes=pair[which(pair[,2]==prev_level[j]),1]
-      nxt_level=c(nxt_level,nxt_nodes)
-    }
-    if(length(nxt_level)==0)
-    {
+  order.append(roots) # [array]
+
+  for o in order:
+    prev_level = o
+    nxt_level=np.array([pair[list(np.where(pair[:,1]==i)[0]),0] for i in prev_level]) 
+    nxt_level = np.unique(nxt_level)
+    if (len(nxt_level)==0):
       break
-    }
-    order[[i+1]]=unique(nxt_level)
-  }
-  order[[(length(order)+1)]]=vector()
-  l=length(order)
-  for(i in 2:(l-1))
-  {
-    shift=c()
-    for(j in 1:length(order[[i]]))
-    {
-      to=which(adjm[order[[i]][j],]!=0)
-      fbool=TRUE
-      for(m in 1:length(to))
-      {
-        el=to[m]
-        for(k in (i-1):1)
-        {
-          bool=(el %in% order[[k]])
-          if(bool==TRUE)
-          {
-            break
-          }
-        }
-        fbool= fbool & bool
-        if(fbool==FALSE)
-        {
-          break
-        }
-      }
-      if(fbool==FALSE)
-      {
-        shift=c(shift,order[[i]][j])
-      }
-    }
-    order[[i]]=unique(order[[i]][! (order[[i]] %in% shift)])
-    order[[i+1]]=unique(append(order[[i+1]],shift))
-  }
-  border=c()
-  for(i in 1:length(order))
-  {
-    border=append(border,order[[i]])
-  }
-  return(border)
-}
+    order.append(nxt_level)
+
+  order.append(np.array([]))
+
+  l = len(order)
+  for i in range(1,l-1):
+    shift = [] 
+
+    for j in order[i]:
+      to = np.where(adjm[j,:]!=0)[0]
+      fbool = set(to).issubset(np.hstack(order[:i]))
+      if fbool==False:
+        shift.append(j) 
+    element_to_update = [i for i in order[i] if i not in shift]
+    order[i]= np.unique(element_to_update)
+    order[i+1] = np.unique(list(order[i+1]) + shift)
+  
+  border = []
+  for i in order:
+    border = border + list(i)
+  
+  return border  
+
+
+if __name__ == "__main__":
+  import initHMM
+  # sample call to the function
+  tmat = np.array([0,0,1,0,0,0,0,1,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0]).reshape(5,5) 
+  states = ['P','N'] 
+  symbols = [['L','R']] 
+  hmm = initHMM.initHMM(states,symbols,tmat)
+
+  b = bwd_seq_gen(hmm)
+
+  print(b)
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
