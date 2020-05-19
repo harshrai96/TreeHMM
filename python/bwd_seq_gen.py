@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import numpy as np
 import pandas as pd
-import initHMM
+import initHMM as initHMM
 
 
 def bwd_seq_gen(hmm,nlevel=100):

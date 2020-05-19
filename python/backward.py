@@ -1,127 +1,93 @@
 import numpy as np
 import pandas as pd
+import math
+import itertools
+import pdb
+
+def backward (hmm, observation, bt_seq, kn_states=None):
+  '''
+  observation = [[]]
+
+  '''
+
+  if kn_states is None:
+
+    kn_states =  pd.DataFrame(columns=["node","state"])
+
+  treemat = hmm["adjsym"]
+  hmm["transProbs"].fillna(0, inplace=True)
+  nLevel = len(observation)
+  
+  for m in range(nLevel):
+    hmm["emissionProbs"][m].fillna(0, inplace=True)
+
+  nObservations = len(observation[0])
+
+  nStates = len(hmm["States"])
+  b = np.zeros(shape=(nStates,nObservations))
+  b = pd.DataFrame(data=b, index=hmm["States"], columns=range(nObservations))
+  
+  for k in bt_seq:
+
+    _bool = set([k]).issubset(list(kn_states["node"]))
+    if _bool==True:
+      st = list(kn_states["state"][kn_states["node"]==k])[0]
+    nxt_state = np.where(treemat[k,:]!=0)[0]
+    len_link = len(nxt_state)
+
+    if len_link==0:
+      if _bool ==True:
+        st_ind = np.where(st!=np.array(hmm["States"]))[0]
+        mapdf = np.array([[i,j] for i,j in zip(range(nStates),hmm["States"])])
+        mapdf = pd.DataFrame(data=mapdf, columns=["old","new"] )
+        tozero = list(mapdf["new"][mapdf["old"]==st_ind])[0]
+        b.loc[tozero,k] = -math.inf
+      continue
 
 
-def backward (hmm, observation,bt_seq, kn_states=NULL):
-	if (np.any(kn_states==NONE)):
-		node = list()
-	    state = list()
-	    kn_states =  pd.DataFrame(index = node, columns = state)#Doubtful............
-
-	treemat=hmm$adjsym#To change...............
-	treemat = initHmm(treemat)
-	 
-    hmm$transProbs[is.na(hmm$transProbs)] = 0#To change...........			
-    initHMM(T)
-
-    nLevel=len(observation)
-
-    for m in range(nLevel):
-    	{
-    hmm$emissionProbs[[m]][is.na(hmm$emissionProbs[[m]])] = 0#To change...........
-  }
-    nObservations = len (observation[1])
-    nStates = len (hmm$States)#To change...........
-    b = np.ones(nStates,nObservations) * NA
-    b = pd.DataFrame()#To change...........
-     
+    next_array = np.array(list(itertools.product(hmm["States"],repeat=len_link)))
+    inter = list(set(nxt_state) & set(kn_states.iloc[:,0]))
+    len_inter = len(inter)
+    t_value = np.repeat(True, next_array.shape[0], axis=0)
+    if len_inter != 0:
+      for i in range(len_inter):
+        ind = np.where(kn_states.iloc[:, 0] == inter[i])[0][0]
+        ind1 = np.where(inter[i] == nxt_state)[0][0]
+        st = kn_states.iloc[ind, 1]
+        t_value = np.logical_and(len(np.where(next_array[:, ind1] == st)[0]), t_value)
 
 
 
+    ind_arr = np.where(t_value)[0]
+    for state in hmm["States"]:
+      logsum = []
+      for i in ind_arr:
+        temp = 0
+        for j in range(next_array.shape[1]):
+          emit = np.sum([math.log(hmm["emissionProbs"][m].loc[state, observation[m][k]]) for m in range(nLevel) if observation[m][k]!= None])
+          # emit = 0
+          # for m in range(nLevel):
+          #   if observation[m][k]!= None:#Doubtful
+          #     emit = math.log(hmm["emissionProbs"][m].loc[state, observation[m][k]]) + emit# Doubtful
 
+          temp += b.loc[next_array[i,j],nxt_state[j]] + math.log(hmm["transProbs"].loc[state, next_array[i,j]]) + emit
 
-backward= function (hmm, observation,bt_seq, kn_states=NULL)
-{
-  if(is.null(kn_states))
-    kn_states=data.frame(node=integer(),state=character(),stringsAsFactors = F)
-  treemat=hmm$adjsym
-  hmm$transProbs[is.na(hmm$transProbs)] = 0
-  nLevel = length(observation)
-  for(m in 1:nLevel)
-  {
-    hmm$emissionProbs[[m]][is.na(hmm$emissionProbs[[m]])] = 0
-  }
-  nObservations =length(observation[[1]])
-  nStates = length(hmm$States)
-  b = array(NA,c(nStates, nObservations))
-  dimnames(b) = list(states = hmm$States, index = 1:nObservations)
-  for (x in 1:length(bt_seq))
-  {
-    k=bt_seq[x]
-    bool= k %in% kn_states[,1]
-    if(bool==TRUE)
-    {
-      ind=match(k,kn_states[,1])
-      st=kn_states[ind,2]
-    }
-    nxtstate=which(treemat[k,]!=0)
-    len_link=length(nxtstate)
-    if(len_link==0)
-    {
-      for (state in hmm$States)
-      {
-        b[state,k]=0
-      }
-      if(bool==TRUE)
-      {
-        st_ind=which(st!=hmm$States)
-        mapdf = data.frame(old=c(1:nStates),new=hmm$States)
-        tozero=as.character(mapdf$new[match(st_ind,mapdf$old)])
-        b[tozero,k]=-Inf
-      }
-      next
-    }
-    next_array=gtools::permutations(n=nStates, r=len_link, v=hmm$States, repeats.allowed = TRUE )
-    inter= intersect(nxtstate, kn_states[,1])
-    len_inter=length(inter)
-    t_value=rep(TRUE,dim(next_array)[1])
-    if(len_inter!=0)
-    {
-      for(i in 1:len_inter)
-      {
-        ind=match(inter[i],kn_states[,1])
-        ind1=match(inter[i], nxtstate)
-        st=kn_states[ind,2]
-        t_value=which(next_array[,ind1]==st) & t_value
-      }
-    }
-    ind_arr=which(t_value)
-    for (state in hmm$States)
-    {
-      logsum=c()
-      for (d in 1:length(ind_arr))
-      {
-        i=ind_arr[d]
-        temp=0
-        for (j in 1:dim(next_array)[2])
-        {
-          emit=0
-          for(m in 1:nLevel)
-          {
-            if(!is.na(observation[[m]][k]))
-              emit=log(hmm$emissionProbs[[m]][state, observation[[m]][k]]) + emit
-          }
-          temp = temp + (b[next_array[i,j], nxtstate[j]] + log(hmm$transProbs[state, next_array[i,j]]) + emit)
-        }
-        if(temp > - Inf & temp< 0)
-        {
-          logsum = c(logsum,temp)
-        }
-      }
-      b[state, k] = matrixStats::logSumExp(logsum)
-    }
-    if(bool==TRUE)
-    {
-      st_ind=which(st!=hmm$States)
-      mapdf = data.frame(old=c(1:nStates),new=hmm$States)
-      tozero=as.character(mapdf$new[match(st_ind,mapdf$old)])
-      b[tozero,k]=-Inf
-    }
-  }
-  return(b)
-}
+        if (temp > -math.inf and temp <0):
+          logsum.append(temp)
 
+      b.loc[state,k] = np.log(np.sum(np.exp(logsum)))
 
+    if _bool==True:
+      old = range(nStates)
+      new = hmm["States"]
+      st_ind = np.where(st!=np.array(hmm["States"]))[0]
+      mapdf = np.array([[i,j] for i,j in zip(old,new)])
+      mapdf = pd.DataFrame(data=mapdf, columns=["old","new"] )
+      mapdf["old"] = pd.to_numeric(mapdf["old"])
+      tozero = mapdf["new"][mapdf["old"].isin(st_ind)].tolist()[0]
+      b.loc[tozero,k] = -math.inf
+
+  return b      
 
 
 
