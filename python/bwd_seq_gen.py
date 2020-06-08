@@ -9,7 +9,6 @@ def bwd_seq_gen(hmm,nlevel=100):
   adjm=hmm["adjsym"]
   pair = np.transpose(np.nonzero(adjm)) 
 
-  #colnames(pair)=NULL #To change
 
   row_sums = np.sum(adjm,axis=1)
   col_sums = np.sum(adjm,axis=0)
