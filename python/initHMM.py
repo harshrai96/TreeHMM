@@ -2,7 +2,6 @@
 import numpy as np
 import pandas as pd
 
-
 def initHMM (States, Symbols, treemat, startProbs = None, transProbs = None, emissionProbs = None):
 	'''
 	States = np.array(shape=(N,)) 
@@ -40,7 +39,6 @@ def initHMM (States, Symbols, treemat, startProbs = None, transProbs = None, emi
 
 	return {"States" : States, "Symbols" : Symbols, "startProbs" : S,
 	          "transProbs" : T, "emissionProbs" : E, "adjsym" : treemat}
-
 
 
 if __name__ == "__main__":

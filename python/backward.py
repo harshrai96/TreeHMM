@@ -40,7 +40,8 @@ def backward (hmm, observation, bt_seq, kn_states=None):
         st_ind = np.where(st!=np.array(hmm["States"]))[0]
         mapdf = np.array([[i,j] for i,j in zip(range(nStates),hmm["States"])])
         mapdf = pd.DataFrame(data=mapdf, columns=["old","new"] )
-        tozero = list(mapdf["new"][mapdf["old"]==st_ind])[0]
+        mapdf["old"] = pd.to_numeric(mapdf["old"])
+        tozero = list(mapdf["new"][mapdf["old"].isin(st_ind)])[0]
         b.loc[tozero,k] = -math.inf
       continue
 
@@ -64,13 +65,18 @@ def backward (hmm, observation, bt_seq, kn_states=None):
       for i in ind_arr:
         temp = 0
         for j in range(next_array.shape[1]):
+          #try:
           emit = np.sum([math.log(hmm["emissionProbs"][m].loc[state, observation[m][k]]) for m in range(nLevel) if observation[m][k]!= None])
+          #except:
+            # emit = -math.inf
           # emit = 0
           # for m in range(nLevel):
           #   if observation[m][k]!= None:#Doubtful
-          #     emit = math.log(hmm["emissionProbs"][m].loc[state, observation[m][k]]) + emit# Doubtful
-
-          temp += b.loc[next_array[i,j],nxt_state[j]] + math.log(hmm["transProbs"].loc[state, next_array[i,j]]) + emit
+          #     emit = math.log(hmm["emissionProbs"][m].loc[state, observation[m][k]]) + emit
+          #try:
+          temp += b.loc[next_array[i, j], nxt_state[j]] + math.log(hmm["transProbs"].loc[state, next_array[i, j]]) + emit
+          # except :
+          #   temp = -math.inf
 
         if (temp > -math.inf and temp <0):
           logsum.append(temp)
