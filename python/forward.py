@@ -5,10 +5,10 @@ import math
 import pdb
 import ipdb
 
-def noisy_or(hmm, prev_state, cur_state):
+def noisy_or(hmm, previous_state, cur_state):
 
-  l = len(np.where(np.array(prev_state) == np.array(hmm["States"][0]))[0])
-  fin = math.pow(hmm["transProbs"].loc[hmm["States"][0],hmm["States"][1]],l)
+  l = len(np.where(np.array(previous_state) == np.array(hmm["States"][0]))[0])
+  fin = math.pow(hmm["state_transition_probabilities"].loc[hmm["States"][0],hmm["States"][1]],l)
 
   if cur_state ==hmm["States"][1]:
       return fin
@@ -25,17 +25,17 @@ def forward (hmm, observation, ft_seq, kn_states=None):
   if kn_states is None:
     kn_states =  pd.DataFrame(columns=["node","state"])
 
-  treemat = hmm["adjsym"]
-  hmm["transProbs"].fillna(0, inplace=True)
-  nLevel = len(observation)
-  for m in range(nLevel):
-    hmm["emissionProbs"][m].fillna(0, inplace=True)
+  treemat = hmm["adjacent_symmetry_matrix"]
+  hmm["state_transition_probabilities"].fillna(0, inplace=True)
+  number_of_levels = len(observation)
+  for m in range(number_of_levels):
+    hmm["emission_probabilities"][m].fillna(0, inplace=True)
 
-  nObservations = len(observation[0])
+  number_of_observations = len(observation[0])
 
-  nStates = len(hmm["States"])
-  f = np.zeros(shape=(nStates,nObservations))
-  f = pd.DataFrame(data=f, index=hmm["States"], columns=range(nObservations))
+  number_of_states = len(hmm["States"])
+  f = np.zeros(shape=(number_of_states,number_of_observations))
+  f = pd.DataFrame(data=f, index=hmm["States"], columns=range(number_of_observations))
   
   for k in ft_seq:
 
@@ -47,10 +47,10 @@ def forward (hmm, observation, ft_seq, kn_states=None):
 
     if len_link==0:
       for state in hmm["States"]:
-          f.loc[state,k] = math.log(hmm["startProbs"][state])
+          f.loc[state,k] = math.log(hmm["initial_probabilities"][state])
       if _bool ==True:
         st_ind = np.where(st!=np.array(hmm["States"]))[0]
-        mapdf = np.array([[i,j] for i,j in zip(range(nStates),hmm["States"])])
+        mapdf = np.array([[i,j] for i,j in zip(range(number_of_states),hmm["States"])])
         mapdf = pd.DataFrame(data=mapdf, columns=["old","new"])
         mapdf["old"] = pd.to_numeric(mapdf["old"])
         tozero = list(mapdf["new"][mapdf["old"].isin(st_ind)])[0]
@@ -91,14 +91,14 @@ def forward (hmm, observation, ft_seq, kn_states=None):
           logsum.append(temp)
 
       emit = 0
-      for m in range(nLevel):
+      for m in range(number_of_levels):
         if observation[m][k]!= None:
-          emit = math.log(hmm["emissionProbs"][m].loc[state, observation[m][k]]) + emit
+          emit = math.log(hmm["emission_probabilities"][m].loc[state, observation[m][k]]) + emit
         
       f.loc[state,k] = np.log(np.sum(np.exp(logsum))) + emit
 
     if _bool==True:
-      old = range(nStates)
+      old = range(number_of_states)
       new = hmm["States"]
       st_ind = np.where(st!=np.array(hmm["States"]))[0]
       mapdf = np.array([[i,j] for i,j in zip(old,new)])

@@ -2,43 +2,43 @@
 import numpy as np
 import pandas as pd
 
-def initHMM (States, Symbols, treemat, startProbs = None, transProbs = None, emissionProbs = None):
+def initHMM (States, Symbols, treemat, initial_probabilities = None, state_transition_probabilities = None, emission_probabilities = None):
 	'''
 	States = np.array(shape=(N,)) 
 	Symbols = [np.array(shape=(N,)), ...]
 	treemat = np.array(shape=(N,N))
-	startProbs = np.array(shape=(N,))
-	transProbs = np.array(shape=(N,N))
-	emissionProbs = [np.array(shape=(N,M)), ....]
+	initial_probabilities = np.array(shape=(N,))
+	state_transition_probabilities = np.array(shape=(N,N))
+	emission_probabilities = [np.array(shape=(N,M)), ....]
 	T = pandas.DataFrame
 	E = [pandas.DataFrame, ...]
 	S = dict()
 	'''
-	nStates = len(States)
-	nLevel = len(Symbols)
+	number_of_states = len(States)
+	number_of_levels = len(Symbols)
 	E=list()
-	default_startProb = np.repeat((1/nStates),nStates, axis=0) 
-	default_transProb = 0.5 * np.identity(nStates) + np.ones(shape=(nStates,nStates)) * (0.5/nStates) 
-	S = dict(zip(States, default_startProb))
-	T = pd.DataFrame(data=default_transProb, index=States, columns=States)
+	default_initial_probabilities = np.repeat((1/number_of_states),number_of_states, axis=0) 
+	default_transition_probabilities = 0.5 * np.identity(number_of_states) + np.ones(shape=(number_of_states,number_of_states)) * (0.5/number_of_states) 
+	S = dict(zip(States, default_initial_probabilities))
+	T = pd.DataFrame(data=default_transition_probabilities, index=States, columns=States)
 
-	if (startProbs is not None):
-		S = dict(zip(States, startProbs))
+	if (initial_probabilities is not None):
+		S = dict(zip(States, initial_probabilities))
 
-	if (transProbs is not None):
-		transProbs = np.array(transProbs)
-		T = pd.DataFrame(data=transProbs, index=States, columns=States)
+	if (state_transition_probabilities is not None):
+		state_transition_probabilities = np.array(state_transition_probabilities)
+		T = pd.DataFrame(data=state_transition_probabilities, index=States, columns=States)
 
-	for i in range(nLevel):
-		nSymbols = len(Symbols[i])
-		E.append(np.ones(shape=(nStates, nSymbols)) * (1/nSymbols))
+	for i in range(number_of_levels):
+		number_of_symbols = len(Symbols[i])
+		E.append(np.ones(shape=(number_of_states, number_of_symbols)) * (1/number_of_symbols))
 		E[i] = pd.DataFrame(data=E[i], index=States, columns=Symbols[i])
-		if (emissionProbs is not None):
-			E[i] = pd.DataFrame(data=emissionProbs, index=States, columns=Symbols[i])
+		if (emission_probabilities is not None):
+			E[i] = pd.DataFrame(data=emission_probabilities, index=States, columns=Symbols[i])
 
 
-	return {"States" : States, "Symbols" : Symbols, "startProbs" : S,
-	          "transProbs" : T, "emissionProbs" : E, "adjsym" : treemat}
+	return {"States" : States, "Symbols" : Symbols, "initial_probabilities" : S,
+	          "state_transition_probabilities" : T, "emission_probabilities" : E, "adjacent_symmetry_matrix" : treemat}
 
 
 if __name__ == "__main__":

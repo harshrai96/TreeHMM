@@ -4,9 +4,9 @@ import pandas as pd
 import initHMM as initHMM
 
 
-def bwd_seq_gen(hmm,nlevel=100):
+def bwd_seq_gen(hmm,number_of_levels=100):
 
-  adjm=hmm["adjsym"]
+  adjm=hmm["adjacent_symmetry_matrix"]
   pair = np.transpose(np.nonzero(adjm)) 
 
 
@@ -17,12 +17,12 @@ def bwd_seq_gen(hmm,nlevel=100):
   order.append(roots) # [array]
 
   for o in order:
-    prev_level = o
-    nxt_level=np.array([pair[list(np.where(pair[:,1]==i)[0]),0] for i in prev_level]) 
-    nxt_level = np.unique(nxt_level)
-    if (len(nxt_level)==0):
+    previous_level = o
+    next_level=np.array([pair[list(np.where(pair[:,1]==i)[0]),0] for i in previous_level]) 
+    next_level = np.unique(next_level)
+    if (len(next_level)==0):
       break
-    order.append(nxt_level)
+    order.append(next_level)
 
   order.append(np.array([]))
 

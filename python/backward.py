@@ -14,18 +14,18 @@ def backward (hmm, observation, bt_seq, kn_states=None):
 
     kn_states =  pd.DataFrame(columns=["node","state"])
 
-  treemat = hmm["adjsym"]
-  hmm["transProbs"].fillna(0, inplace=True)
-  nLevel = len(observation)
+  treemat = hmm["adjacent_symmetry_matrix"]
+  hmm["state_transition_probabilities"].fillna(0, inplace=True)
+  number_of_levels = len(observation)
   
-  for m in range(nLevel):
-    hmm["emissionProbs"][m].fillna(0, inplace=True)
+  for m in range(number_of_levels):
+    hmm["emission_probabilities"][m].fillna(0, inplace=True)
 
-  nObservations = len(observation[0])
+  number_of_observations = len(observation[0])
 
-  nStates = len(hmm["States"])
-  b = np.zeros(shape=(nStates,nObservations))
-  b = pd.DataFrame(data=b, index=hmm["States"], columns=range(nObservations))
+  number_of_states = len(hmm["States"])
+  b = np.zeros(shape=(number_of_states,number_of_observations))
+  b = pd.DataFrame(data=b, index=hmm["States"], columns=range(number_of_observations))
   
   for k in bt_seq:
 
@@ -38,7 +38,7 @@ def backward (hmm, observation, bt_seq, kn_states=None):
     if len_link==0:
       if _bool ==True:
         st_ind = np.where(st!=np.array(hmm["States"]))[0]
-        mapdf = np.array([[i,j] for i,j in zip(range(nStates),hmm["States"])])
+        mapdf = np.array([[i,j] for i,j in zip(range(number_of_states),hmm["States"])])
         mapdf = pd.DataFrame(data=mapdf, columns=["old","new"] )
         mapdf["old"] = pd.to_numeric(mapdf["old"])
         tozero = list(mapdf["new"][mapdf["old"].isin(st_ind)])[0]
@@ -65,12 +65,12 @@ def backward (hmm, observation, bt_seq, kn_states=None):
       for i in ind_arr:
         temp = 0
         for j in range(next_array.shape[1]):
-          emit = np.sum([math.log(hmm["emissionProbs"][m].loc[state, observation[m][k]]) for m in range(nLevel) if observation[m][k]!= None])
+          emit = np.sum([math.log(hmm["emission_probabilities"][m].loc[state, observation[m][k]]) for m in range(number_of_levels) if observation[m][k]!= None])
           # emit = 0
-          # for m in range(nLevel):
+          # for m in range(number_of_levels):
           #   if observation[m][k]!= None:#Doubtful
-          #     emit = math.log(hmm["emissionProbs"][m].loc[state, observation[m][k]]) + emit
-          temp += b.loc[next_array[i, j], nxt_state[j]] + math.log(hmm["transProbs"].loc[state, next_array[i, j]]) + emit
+          #     emit = math.log(hmm["emission_probabilities"][m].loc[state, observation[m][k]]) + emit
+          temp += b.loc[next_array[i, j], nxt_state[j]] + math.log(hmm["state_transition_probabilities"].loc[state, next_array[i, j]]) + emit
 
         if (temp > -math.inf and temp <0):
           logsum.append(temp)
@@ -78,7 +78,7 @@ def backward (hmm, observation, bt_seq, kn_states=None):
       b.loc[state,k] = np.log(np.sum(np.exp(logsum)))
 
     if _bool==True:
-      old = range(nStates)
+      old = range(number_of_states)
       new = hmm["States"]
       st_ind = np.where(st!=np.array(hmm["States"]))[0]
       mapdf = np.array([[i,j] for i,j in zip(old,new)])
