@@ -1,93 +1,163 @@
+# This file infers the backward probabilities for all the nodes of the treeHMM
+
+# The backward probability for state X and observation at node k is defined as the probability of observing the
+# sequence of observations e_k+1, ... ,e_n under the condition that the state at node k is X.
+
+# That is backward_probabilities[X,k] := Prob(E_k+1 = e_k+1, ... , E_n = e_n | X_k = X)
+# E_1...E_n = e_1...e_n is the sequence of observed emissions and X_k is a random variable that represents
+# the state at node k
+
+# Importing the libraries
+
 import numpy as np
 import pandas as pd
 import math
 import itertools
-import pdb
-
-def backward (hmm, observation, bt_seq, kn_states=None):
-  '''
-  observation = [[]]
-
-  '''
-
-  if kn_states is None:
-
-    kn_states =  pd.DataFrame(columns=["node","state"])
-
-  treemat = hmm["adjacent_symmetry_matrix"]
-  hmm["state_transition_probabilities"].fillna(0, inplace=True)
-  number_of_levels = len(observation)
-  
-  for m in range(number_of_levels):
-    hmm["emission_probabilities"][m].fillna(0, inplace=True)
-
-  number_of_observations = len(observation[0])
-
-  number_of_states = len(hmm["States"])
-  b = np.zeros(shape=(number_of_states,number_of_observations))
-  b = pd.DataFrame(data=b, index=hmm["States"], columns=range(number_of_observations))
-  
-  for k in bt_seq:
-
-    _bool = set([k]).issubset(list(kn_states["node"]))
-    if _bool==True:
-      st = list(kn_states["state"][kn_states["node"]==k])[0]
-    nxt_state = np.where(treemat[k,:]!=0)[0]
-    len_link = len(nxt_state)
-
-    if len_link==0:
-      if _bool ==True:
-        st_ind = np.where(st!=np.array(hmm["States"]))[0]
-        mapdf = np.array([[i,j] for i,j in zip(range(number_of_states),hmm["States"])])
-        mapdf = pd.DataFrame(data=mapdf, columns=["old","new"] )
-        mapdf["old"] = pd.to_numeric(mapdf["old"])
-        tozero = list(mapdf["new"][mapdf["old"].isin(st_ind)])[0]
-        b.loc[tozero,k] = -math.inf
-      continue
 
 
-    next_array = np.array(list(itertools.product(hmm["States"],repeat=len_link)))
-    inter = list(set(nxt_state) & set(kn_states.iloc[:,0]))
-    len_inter = len(inter)
-    t_value = np.repeat(True, next_array.shape[0], axis=0)
-    if len_inter != 0:
-      for i in range(len_inter):
-        ind = np.where(kn_states.iloc[:, 0] == inter[i])[0][0]
-        ind1 = np.where(inter[i] == nxt_state)[0][0]
-        st = kn_states.iloc[ind, 1]
-        t_value = np.logical_and(len(np.where(next_array[:, ind1] == st)[0]), t_value)
+# Defining the backward function
 
 
+def backward(hmm, observation, backward_tree_sequence, kn_states=None):
+    """
+    Args:
+        hmm: It is a dictionary given as output by initHMM.py file
+        observation: observation is a list of list consisting "k" lists for "k"
+            features, each vector being a character series of discrete emission
+            values at different nodes serially sorted by node number
+        backward_tree_sequence: It is a list denoting the order of nodes in
+            which the tree should be traversed in backward direction(from leaves
+            to roots).It's the output of bwd_seq_gen function.
+        kn_states: It is a (L * 2) dataframe where L is the number of training
+            nodes where state values are known. First column should be the node
+            number and the second column being the corresponding known state
+            values of the nodes
 
-    ind_arr = np.where(t_value)[0]
-    for state in hmm["States"]:
-      logsum = []
-      for i in ind_arr:
-        temp = 0
-        for j in range(next_array.shape[1]):
-          emit = np.sum([math.log(hmm["emission_probabilities"][m].loc[state, observation[m][k]]) for m in range(number_of_levels) if observation[m][k]!= None])
-          # emit = 0
-          # for m in range(number_of_levels):
-          #   if observation[m][k]!= None:#Doubtful
-          #     emit = math.log(hmm["emission_probabilities"][m].loc[state, observation[m][k]]) + emit
-          temp += b.loc[next_array[i, j], nxt_state[j]] + math.log(hmm["state_transition_probabilities"].loc[state, next_array[i, j]]) + emit
+    Returns:
+        backward_probs: A dataframe of size (N * D) denoting the backward
+        probabilities at each node of the tree, where "N" is possible no. of
+        states and "D" is the total number of nodes in the tree
+    """
+    if kn_states is None:
+        kn_states = pd.DataFrame(columns=["node", "state"])
 
-        if (temp > -math.inf and temp <0):
-          logsum.append(temp)
+    adjacent_symmetry_matrix_values = hmm["adjacent_symmetry_matrix"]
+    hmm["state_transition_probabilities"].fillna(0, inplace=True)
+    number_of_levels = len(observation)
 
-      b.loc[state,k] = np.log(np.sum(np.exp(logsum)))
+    for m in range(number_of_levels):
+        hmm["emission_probabilities"][m].fillna(0, inplace=True)
 
-    if _bool==True:
-      old = range(number_of_states)
-      new = hmm["States"]
-      st_ind = np.where(st!=np.array(hmm["States"]))[0]
-      mapdf = np.array([[i,j] for i,j in zip(old,new)])
-      mapdf = pd.DataFrame(data=mapdf, columns=["old","new"] )
-      mapdf["old"] = pd.to_numeric(mapdf["old"])
-      tozero = mapdf["new"][mapdf["old"].isin(st_ind)].tolist()[0]
-      b.loc[tozero,k] = -math.inf
+    number_of_observations = len(observation[0])
 
-  return b      
+    number_of_states = len(hmm["states"])
 
+    # We define a variable 'backward_probabilities' which is a numpy array which will be denoting
+    # the backward probabilities
+    backward_probabilities = np.zeros(
+        shape=(number_of_states, number_of_observations))
+    # We transform the numpy array 'backward_probabilities' into a pandas dataframe
+    backward_probabilities = pd.DataFrame(
+        data=backward_probabilities,
+        index=hmm["states"],
+        columns=range(number_of_observations))
 
 
+    for k in backward_tree_sequence:
+        boolean_value = set([k]).issubset(list(kn_states["node"]))
+        if boolean_value:
+            desired_state = list(kn_states["state"][kn_states["node"] == k])[0]
+        next_state = np.where(adjacent_symmetry_matrix_values[k, :] != 0)[0]
+        length_of_next_state = len(next_state)
+
+        if length_of_next_state == 0:
+            if boolean_value:
+                desired_state_index = np.where(
+                    desired_state != np.array(hmm["states"]))[0]
+                # 'mapdf' is a dataframe which maps from old state to new state
+                mapdf = np.array([[i, j] for i, j in zip(
+                    range(number_of_states), hmm["states"])])
+                mapdf = pd.DataFrame(
+                    data=mapdf, columns=[
+                        "old_states", "new_states"])
+                mapdf["old_states"] = pd.to_numeric(mapdf["old_states"])
+                tozero = list(
+                    mapdf["new_states"][mapdf["old_states"].isin(desired_state_index)])[0]
+                backward_probabilities.loc[tozero, k] = -math.inf
+            continue
+
+        next_array = np.array(
+            list(
+                itertools.product(
+                    hmm["states"],
+                    repeat=length_of_next_state)))
+        inter = list(set(next_state) & set(kn_states.iloc[:, 0]))
+        len_inter = len(inter)
+        # 'true_boolean_array' is a boolean array with only True boolean elements
+        true_boolean_array = np.repeat(True, next_array.shape[0], axis=0)
+        if len_inter != 0:
+            for i in range(len_inter):
+                index_variable_1 = np.where(
+                    kn_states.iloc[:, 0] == inter[i])[0][0]
+                index_variable_2 = np.where(inter[i] == next_state)[0][0]
+                desired_state = kn_states.iloc[index_variable_1, 1]
+                true_boolean_array = np.logical_and(len(np.where(
+                    next_array[:, index_variable_2] == desired_state)[0]), true_boolean_array)
+
+        # 'index_array' is a numpy array comprising the index of all the True values of true_boolean_array
+        index_array = np.where(true_boolean_array)[0]
+        for state in hmm["states"]:
+            logsum = []
+            for i in index_array:
+                temp = 0
+                for j in range(next_array.shape[1]):
+                    emit = np.sum([math.log(hmm["emission_probabilities"][m].loc[state, observation[m][k]])
+                                   for m in range(number_of_levels) if observation[m][k] is not None])
+                    temp += backward_probabilities.loc[next_array[i, j], next_state[j]] + math.log(
+                        hmm["state_transition_probabilities"].loc[state, next_array[i, j]]) + emit
+
+                if -math.inf < temp < 0:
+                    logsum.append(temp)
+
+            backward_probabilities.loc[state, k] = np.log(
+                np.sum(np.exp(logsum)))
+
+        if boolean_value:
+            old_states = range(number_of_states)
+            new_states = hmm["states"]
+            desired_state_index = np.where(
+                desired_state != np.array(
+                    hmm["states"]))[0]
+            mapdf = np.array([[i, j] for i, j in zip(old_states, new_states)])
+            mapdf = pd.DataFrame(
+                data=mapdf, columns=[
+                    "old_states", "new_states"])
+            mapdf["old_states"] = pd.to_numeric(mapdf["old_states"])
+            tozero = mapdf["new_states"][mapdf["old_states"].isin(
+                desired_state_index)].tolist()[0]
+            backward_probabilities.loc[tozero, k] = -math.inf
+
+    return backward_probabilities
+
+
+def run_an_example():
+    """sample run for backward function"""
+    import initHMM
+    import bwd_seq_gen
+
+    sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
+                            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
+    states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
+    symbols = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
+    hmm = initHMM.initHMM(states, symbols, sample_tree)
+    observation = [["L", "L", "R", "R", "L"]]
+    backward_tree_sequence = bwd_seq_gen.bwd_seq_gen(hmm)
+    data = {'node': [1], 'state': ['P']}
+    kn_states = pd.DataFrame(data=data, columns=["node", "state"])
+    backward_probs = backward.backward(
+        hmm, observation, backward_tree_sequence, kn_states)
+
+
+# sample call to the function
+if __name__ == "__main__":
+    run_an_example()
