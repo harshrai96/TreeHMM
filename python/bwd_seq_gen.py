@@ -15,6 +15,7 @@
 import numpy as np
 import pandas as pd
 import initHMM
+import pdb
 
 # Defining the bwd_seq_gen function
 
@@ -30,43 +31,41 @@ def bwd_seq_gen(hmm, number_of_levels=100):
         nodes in the tree
     """
     adj_mat = hmm["adjacent_symmetry_matrix"]
-    pair_of_nonzero_indices = np.transpose(np.nonzero(adj_mat))
-
-    adj_mat_row_sums = np.sum(adj_mat, axis=1)
-    adj_mat_column_sums = np.sum(adj_mat, axis=0)
-    indices_of_zero_rowsums_and_nonzero_column_sums = np.where(
-        np.logical_and(
-            adj_mat_row_sums == 0,
-            adj_mat_column_sums != 0))[0]  # np.array()
+    temp = adj_mat.tocoo()
+    rows = temp.row
+    cols = temp.col
+    # pair_of_nonzero_indices = np.transpose(np.nonzero(adj_mat))
+    pair_of_nonzero_indices = np.array([[r, c] for r, c in zip(rows, cols)])
+    adj_mat_row_sums = np.squeeze(np.asarray(np.sum(adj_mat, axis=1)))
+    adj_mat_col_sums = np.squeeze(np.asarray(np.sum(adj_mat, axis=0)))
+    indices_of_zero_rowsums_and_nonzero_column_sums = np.where(np.logical_and(adj_mat_row_sums == 0,adj_mat_col_sums != 0))[0]  # np.array()
     order = list()
+
     order.append(indices_of_zero_rowsums_and_nonzero_column_sums)  # [array]
 
     for o in order:
         previous_level = o
-        next_level = np.array([pair_of_nonzero_indices[list(
-            np.where(pair_of_nonzero_indices[:, 1] == i)[0]), 0] for i in previous_level])
-        next_level = np.unique(next_level)
+        next_level = np.array([pair_of_nonzero_indices[list(np.where(pair_of_nonzero_indices[:, 1] == i)[0]), 0] for i in previous_level])
+        next_level = np.concatenate(next_level)
         if (len(next_level) == 0):
             break
-        order.append(next_level)
+        order.append(np.unique(next_level))
 
     order.append(np.array([]))
-
     length_of_order = len(order)
+
     for i in range(1, length_of_order - 1):
         shift = []
-
         for j in order[i]:
-            indices_of_nonzero_adj_mat_column = np.where(adj_mat[j, :] != 0)[0]
-            boolean_check = set(indices_of_nonzero_adj_mat_column).issubset(
-                np.hstack(order[:i]))
-            if not boolean_check:
+            indices_of_nonzero_adj_mat_column = np.nonzero(adj_mat[j,:])[1]
+            boolean_check = set(indices_of_nonzero_adj_mat_column).issubset(np.hstack(order[:i]))
+            if boolean_check==False:
                 shift.append(j)
         element_to_update = [i for i in order[i] if i not in shift]
         order[i] = np.unique(element_to_update)
         order[i + 1] = np.unique(list(order[i + 1]) + shift)
-
     backward_order = []
+
     for i in order:
         backward_order = backward_order + list(i)
 

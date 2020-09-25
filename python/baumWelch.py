@@ -13,13 +13,16 @@ from forward import forward
 from backward import backward
 import itertools
 import copy
-
-
+import sys
+import pickle
+import json
+import scipy
+from scipy.special import logsumexp
 # Implementation of the Baum Welch Algorithm as a special case of Expectation Maximization algorithm
 # The function baumWelch recursively calls this function to give a final estimate of parameters for tree HMM
 
 # Defining the baumWelchRecursion function
-
+import pdb
 def baumWelchRecursion(hmm, observation, kn_states=None, kn_verify=None):
     """
     Args:
@@ -41,14 +44,28 @@ def baumWelchRecursion(hmm, observation, kn_states=None, kn_verify=None):
         probability matrices
     """
     # 'tree_sequence' is the combined sequence consisting of both forward and backward tree sequences
-    tree_sequence = [fwd_seq_gen(hmm), bwd_seq_gen(hmm)]
-    adjacent_symmetry_matrix_values = hmm["adjacent_symmetry_matrix"]
 
+    def loadList(filename):
+        # the filename should mention the extension 'npy'
+        tempNumpyArray = np.load(filename)
+        return tempNumpyArray.tolist()
+
+    forward_tree_sequence=loadList('forward_tree_seq_of_maindata.npy')
+    backward_tree_sequence= loadList('backward_tree_seq_of_maindata.npy')
+
+    tree_sequence = [forward_tree_sequence, backward_tree_sequence]
+    print("Tree sequences loaded and fed to baumwelch succesfully")
+    # tree_sequence = [fwd_seq_gen(hmm), bwd_seq_gen(hmm)]
+    adjacent_symmetry_matrix_values = hmm["adjacent_symmetry_matrix"]
     Transition_Matrix = hmm["state_transition_probabilities"].copy()
     Transition_Matrix.iloc[:, :] = 0
     Emission_Matrix = copy.deepcopy(hmm["emission_probabilities"])
-
     number_of_levels = len(observation)
+    for i in range(number_of_levels):
+        Emission_Matrix[i].iloc[:, :] = 0
+    # pdb.set_trace()
+    # for i in range(number_of_levels):
+    #     Emission_Matrix[i][:] = 0
 
     kn_verify.iloc[:, 1][np.where(kn_verify.iloc[:, 1] == np.array(hmm["states"])[0])[0]] = 1
     kn_verify.iloc[:, 1][np.where(kn_verify.iloc[:, 1] == np.array(hmm["states"])[1])[0]] = 0
@@ -56,23 +73,26 @@ def baumWelchRecursion(hmm, observation, kn_states=None, kn_verify=None):
 
     fwd = forward(hmm, observation, tree_sequence[0], kn_states)
     bwd = backward(hmm, observation, tree_sequence[1], kn_states)
-
     f = fwd
-    # boolf = np.any(f.iloc[:,tree_sequence[0]]==None)
     b = bwd
-    # boolb = np.any(b.iloc[:,tree_sequence[1]]==None)
+
 
     number_of_states = len(hmm["states"])
     number_of_observations = len(observation[0])
     gamma = f + b
-
+    # print("Gamma before", gamma)
     for i in tree_sequence[0]:
-        summ = np.log(np.sum(np.exp(gamma.iloc[:, i])))
-        gamma.iloc[:, i] = gamma.iloc[:, i] - summ
+        # summ = np.log(np.sum(np.exp(gamma.iloc[:, i])))
+        summ = logsumexp(gamma.iloc[:, i])
+        if summ == -math.inf:
+            pass
+        else:
+            gamma.iloc[:, i] = gamma.iloc[:, i] - summ     # Step where gamma is being normalised
+    # print("Gamma normalised step done")
+    # print("Gamma after", gamma)
 
     if kn_states is not None:
-        pred_prob = np.array(
-            np.exp(gamma.loc[hmm["states"][0], kn_verify.iloc[:, 0]]))
+        pred_prob = np.array(np.exp(gamma.loc[hmm["states"][0], kn_verify.iloc[:, 0]]))
         act_prob = kn_verify.iloc[:, 1]
         fg = pred_prob[np.where(act_prob == 1)[0]]
         bg = pred_prob[np.where(act_prob == 0)[0]]
@@ -83,6 +103,34 @@ def baumWelchRecursion(hmm, observation, kn_states=None, kn_verify=None):
         roc_obj = metrics.roc_auc_score(y, score)
         precision, recall, threshold = precision_recall_curve(y, score)
         pr_obj = auc(recall, precision)
+        # pdb.set_trace()
+
+        print("pred_prob", pred_prob)
+        print("\n")
+        #
+        # print("act_prob", act_prob)
+        # print("\n")
+        #
+        print("fg", fg)
+        print("\n")
+
+        print("bg", bg)
+        print("\n")
+        #
+        # print("pos_class", pos_class)
+        # print("\n")
+        #
+        # print("neg_class", neg_class)
+        # print("\n")
+        #
+        # print("y", y)
+        # print("\n")
+        #
+        # print("score", score)
+        # print("\n")
+
+        print("AUC : ", roc_obj)
+        print("\n")
 
     permutation_of_states = np.array(list(itertools.product(hmm["states"], repeat=number_of_states)))
 
@@ -101,12 +149,20 @@ def baumWelchRecursion(hmm, observation, kn_states=None, kn_verify=None):
                 emit = 0
                 for m in range(number_of_levels):
                     if observation[m][nonzero_pos_adj_sym_mat_val[i, 1]] is not None:
-                        emit = math.log(hmm["emission_probabilities"][m].loc[
-                                            y, observation[m][nonzero_pos_adj_sym_mat_val[i, 1]]]) + emit
-
-                t_prob[y].loc[i, x] = f.loc[x, nonzero_pos_adj_sym_mat_val[i, 0]] + math.log(
-                    hmm["state_transition_probabilities"].loc[x, y]) + b.loc[
-                                          y, nonzero_pos_adj_sym_mat_val[i, 1]] + emit
+                        try:
+                            emit = math.log(hmm["emission_probabilities"][m].loc[y, observation[m][nonzero_pos_adj_sym_mat_val[i, 1]]]) + emit
+                        except ValueError:
+                            emit = -math.inf
+                            break
+                        # emit = math.log(hmm["emission_probabilities"][m].loc[y, observation[m][nonzero_pos_adj_sym_mat_val[i, 1]]]) + emit
+                try:
+                    t_prob[y].loc[i, x] = f.loc[x, nonzero_pos_adj_sym_mat_val[i, 0]] + math.log(
+                        hmm["state_transition_probabilities"].loc[x, y]) + b.loc[
+                                              y, nonzero_pos_adj_sym_mat_val[i, 1]] + emit
+                except ValueError:
+                    t_prob[y].loc[i, x] = -math.inf
+                    break
+                # t_prob[y].loc[i, x] = f.loc[x, nonzero_pos_adj_sym_mat_val[i, 0]] + math.log(hmm["state_transition_probabilities"].loc[x, y]) + b.loc[y, nonzero_pos_adj_sym_mat_val[i, 1]] + emit
 
         shape_ = (len(t_prob.keys()), len(list(t_prob.values())[0].columns))
         arr_ = np.zeros(shape_)
@@ -114,27 +170,43 @@ def baumWelchRecursion(hmm, observation, kn_states=None, kn_verify=None):
         for idx, (k, df) in enumerate(t_prob.items()):
             arr_[idx, :] = df.iloc[i, :].tolist()
 
-        summ = np.log(np.sum(np.exp(arr_)))
+        # summ = np.log(np.sum(np.exp(arr_)))
+        summ = logsumexp(arr_)
+        if summ == -math.inf:
+            pass
+        else:
+            for k in t_prob.keys():
+                t_prob[k].iloc[i, :] -= summ                     # Step where t_prob is being normalised
+        # print("t_prob after ",t_prob)
+        # for k in t_prob.keys():
+        #     t_prob[k].iloc[i, :] -= summ
 
-        for k in t_prob.keys():
-            t_prob[k].iloc[i, :] -= summ
+    # t_prob['P'].iloc[i, :] = -math.inf
+    # t_prob['N'].iloc[i, :] = -math.inf
 
+    # print("T_prob normalised step done")
     for x in hmm["states"]:
-        sumd = np.log(np.sum(np.exp(gamma.loc[x, tree_sequence[0]])))
+        # sumd = np.log(np.sum(np.exp(gamma.loc[x, tree_sequence[0]])))
+        sumd = logsumexp(gamma.loc[x, tree_sequence[0]])
         for y in hmm["states"]:
-            summ = np.log(np.sum(np.exp(t_prob[y].loc[:, x])))
+            # summ = np.log(np.sum(np.exp(t_prob[y].loc[:, x])))
+            summ = logsumexp(t_prob[y].loc[:, x])
             Transition_Matrix.loc[x, y] = np.exp(summ - sumd)
 
-    for i in range(number_of_levels):
-        Emission_Matrix[i].iloc[:, :] = 0
+    # for i in range(number_of_levels):
+    #     Emission_Matrix[i].iloc[:, :] = 0
 
     for m in range(number_of_levels):
         for x in hmm["states"]:
-            sumd = np.log(np.sum(np.exp(gamma.loc[x, tree_sequence[0]])))
+            # sumd = np.log(np.sum(np.exp(gamma.loc[x, tree_sequence[0]])))
+            sumd = logsumexp(gamma.loc[x, tree_sequence[0]])
             for s in hmm["symbols"][m]:
                 indi = list(set(np.where(np.array(observation[m]) == s)[0]) & set(tree_sequence[0]))
-                summ = np.log(np.sum(np.exp(gamma.loc[x, (indi)])))
+                # summ = np.log(np.sum(np.exp(gamma.loc[x, (indi)])))
+                summ = logsumexp(gamma.loc[x, (indi)])
                 Emission_Matrix[m].loc[x, s] = np.exp(summ - sumd)
+    # print("Transition_Matrix",Transition_Matrix)
+    # print("Emission_Matrix",Emission_Matrix)
 
     if kn_states is None:
         return {"Transition_Matrix": Transition_Matrix, "Emission_Matrix": Emission_Matrix, "results": gamma}
@@ -159,7 +231,7 @@ def baumWelch(
         observation,
         kn_states=None,
         kn_verify=None,
-        maxIterations=50,
+        maxIterations=100,
         delta=1e-5,
         pseudoCount=0):
     """inferred HMM whose representation is equivalent to the representation in
@@ -192,7 +264,16 @@ def baumWelch(
     Returns:
         learntHMM: A dictionary consisting of three elements, first being the
     """
-    tree_sequence = [fwd_seq_gen(hmm), bwd_seq_gen(hmm)]
+    def loadList(filename):
+        # the filename should mention the extension 'npy'
+        tempNumpyArray = np.load(filename)
+        return tempNumpyArray.tolist()
+    forward_tree_sequence = loadList('forward_tree_seq_of_maindata.npy')
+    backward_tree_sequence = loadList('backward_tree_seq_of_maindata.npy')
+    tree_sequence = [forward_tree_sequence, backward_tree_sequence]
+
+    # tree_sequence = [fwd_seq_gen(hmm), bwd_seq_gen(hmm)]
+
 
     # 'temporary_hmm' is a copy of the dictionary hmm
     temporary_hmm = copy.deepcopy(hmm)
@@ -216,6 +297,9 @@ def baumWelch(
         print("Iteration_running: ", i)
         print("\n")
         start_time_it = time.time()
+        # print("Temporary HMM Transition Matrix ", temporary_hmm["state_transition_probabilities"])
+        # print("\n")
+        # print("Temporary HMM Emission Matrix ", temporary_hmm["emission_probabilities"])
 
         bw = baumWelchRecursion(temporary_hmm, observation, kn_states, kn_verify)
 
@@ -242,6 +326,7 @@ def baumWelch(
         d = np.sqrt(np.sum(np.square(np.array(temporary_hmm["state_transition_probabilities"] - TM)))) + summ
         print("Delta:", d)
         print("\n")
+        # plt.plot(i, d)
 
         diff.append(d)
 
@@ -252,7 +337,7 @@ def baumWelch(
 
         end_time_it = time.time()
         iter_time = end_time_it - start_time_it
-        print(iter_time)
+        print("iter_time = ", iter_time)
         print("\n")
 
         iter_t.append(iter_time)
@@ -261,6 +346,7 @@ def baumWelch(
         else:
             auc_iter.append(bw["results"][0])
             aupr_iter.append(bw["results"][1])
+
 
         if np.all(d < delta):
             print("Convergence reached :")
@@ -272,12 +358,10 @@ def baumWelch(
 
     for m in range(number_of_levels):
         temporary_hmm["emission_probabilities"][m].fillna(0, inplace=True)
-
     if kn_states is None:
         return {"hmm": temporary_hmm, "stats": diff, "finprob": np.exp(bw["results"][2])}
     else:
         return {"hmm": temporary_hmm, "stats": [diff, auc_iter, aupr_iter], "finprob": np.exp(bw["results"][2])}
-
 
 def run_an_example_1():
     """sample run for baumWelchRecursion function"""

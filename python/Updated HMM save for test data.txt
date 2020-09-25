@@ -1,0 +1,8 @@
+Updated HMM {'states': ['P', 'N'], 'symbols': [['L', 'M', 'H'], ['L', 'M', 'H']], 'initial_probabilities': {'P': 0.5, 'N': 0.5}, 'state_transition_probabilities':       P     N
+P  0.75  0.25
+N  0.25  0.75, 'emission_probabilities': [          L         M         H
+P  0.333333  0.333333  0.333333
+N  0.333333  0.333333  0.333333,           L         M         H
+P  0.333333  0.333333  0.333333
+N  0.333333  0.333333  0.333333], 'adjacent_symmetry_matrix': <6x6 sparse matrix of type '<class 'numpy.longlong'>'
+	with 5 stored elements in Compressed Sparse Row format>}

@@ -13,7 +13,10 @@ import numpy as np
 import pandas as pd
 import math
 import itertools
-
+import pdb
+import ipdb
+import scipy
+from scipy.special import logsumexp
 
 # Defining the backward function
 
@@ -52,8 +55,8 @@ def backward(hmm, observation, backward_tree_sequence, kn_states=None):
 
     number_of_states = len(hmm["states"])
 
-    # We define a variable 'backward_probabilities' which is a numpy array which will be denoting
-    # the backward probabilities
+    # We define a variable 'backward_probabilities' which is a numpy array which will be denoting the backward probabilities
+
     backward_probabilities = np.zeros(
         shape=(number_of_states, number_of_observations))
     # We transform the numpy array 'backward_probabilities' into a pandas dataframe
@@ -61,16 +64,20 @@ def backward(hmm, observation, backward_tree_sequence, kn_states=None):
         data=backward_probabilities,
         index=hmm["states"],
         columns=range(number_of_observations))
-
-
+    print("Backward loop running")
     for k in backward_tree_sequence:
+
         boolean_value = set([k]).issubset(list(kn_states["node"]))
         if boolean_value:
             desired_state = list(kn_states["state"][kn_states["node"] == k])[0]
-        next_state = np.where(adjacent_symmetry_matrix_values[k, :] != 0)[0]
+        # pdb.set_trace()
+        next_state = np.nonzero(adjacent_symmetry_matrix_values[k, :] != 0)[1]
         length_of_next_state = len(next_state)
+        # pdb.set_trace()
 
         if length_of_next_state == 0:
+            for state in hmm["states"]:
+                backward_probabilities.loc[state, k] = 0
             if boolean_value:
                 desired_state_index = np.where(
                     desired_state != np.array(hmm["states"]))[0]
@@ -83,14 +90,14 @@ def backward(hmm, observation, backward_tree_sequence, kn_states=None):
                 mapdf["old_states"] = pd.to_numeric(mapdf["old_states"])
                 tozero = list(
                     mapdf["new_states"][mapdf["old_states"].isin(desired_state_index)])[0]
+                # pdb.set_trace()
                 backward_probabilities.loc[tozero, k] = -math.inf
             continue
 
-        next_array = np.array(
-            list(
-                itertools.product(
-                    hmm["states"],
-                    repeat=length_of_next_state)))
+# back prob is zero here in python but in R it is NA
+
+        rev = np.array(list(itertools.product(hmm["states"],repeat=length_of_next_state)))
+        next_array = rev[::-1]
         inter = list(set(next_state) & set(kn_states.iloc[:, 0]))
         len_inter = len(inter)
         # 'true_boolean_array' is a boolean array with only True boolean elements
@@ -106,21 +113,40 @@ def backward(hmm, observation, backward_tree_sequence, kn_states=None):
 
         # 'index_array' is a numpy array comprising the index of all the True values of true_boolean_array
         index_array = np.where(true_boolean_array)[0]
+
+        # Node 17 and 4 are "0".
         for state in hmm["states"]:
             logsum = []
             for i in index_array:
                 temp = 0
                 for j in range(next_array.shape[1]):
-                    emit = np.sum([math.log(hmm["emission_probabilities"][m].loc[state, observation[m][k]])
-                                   for m in range(number_of_levels) if observation[m][k] is not None])
-                    temp += backward_probabilities.loc[next_array[i, j], next_state[j]] + math.log(
-                        hmm["state_transition_probabilities"].loc[state, next_array[i, j]]) + emit
+                    emit = 0
+                    for m in range(number_of_levels):
+                        if observation[m][k] is not None:
+                            try:
+                                emit = math.log(hmm["emission_probabilities"][m].loc[next_array[i, j], observation[m][next_state[j]]]) + emit
+                            except ValueError:
+                                emit = -math.inf
+                                break
+                    try:
+                    # #     # temp += backward_probabilities.loc[next_array[i, j], next_state[j]] + math.log(hmm["state_transition_probabilities"].loc[state, next_array[i, j]]) + emit
+                        temp = temp + (backward_probabilities.loc[next_array[i, j], next_state[j]] + math.log(hmm["state_transition_probabilities"].loc[state, next_array[i, j]]) + emit)
+                    except ValueError:
+                        temp = -math.inf
+                        break
+                    # temp += backward_probabilities.loc[next_array[i, j], next_state[j]] + math.log(hmm["state_transition_probabilities"].loc[state, next_array[i, j]]) + emit
+                    # temp = temp + (b[next_array[i, j], nxtstate[j]] + log(hmm$transProbs[state, next_array[i, j]]) + emit)
+                    # temp = temp +  (backward_probabilities.loc[next_array[i, j], next_state[j]] + math.log(hmm["state_transition_probabilities"].loc[state, next_array[i, j]]) + emit)
 
                 if -math.inf < temp < 0:
                     logsum.append(temp)
 
-            backward_probabilities.loc[state, k] = np.log(
-                np.sum(np.exp(logsum)))
+            # backward_probabilities.loc[state, k] = np.log(np.sum(np.exp(logsum)))
+            backward_probabilities.loc[state, k] = logsumexp(logsum)
+            # if k == 17:
+            #     print("node 17 here")
+            #     print("Check with no try-except ")
+            #     pdb.set_trace()
 
         if boolean_value:
             old_states = range(number_of_states)
@@ -138,6 +164,10 @@ def backward(hmm, observation, backward_tree_sequence, kn_states=None):
             backward_probabilities.loc[tozero, k] = -math.inf
 
     return backward_probabilities
+
+
+
+
 
 
 def run_an_example():

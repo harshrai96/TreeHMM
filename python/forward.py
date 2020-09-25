@@ -4,6 +4,9 @@ import numpy as np
 import pandas as pd
 import itertools
 import math
+import pdb
+import scipy
+from scipy.special import logsumexp
 
 
 # This function calculates the probability of transition from multiple
@@ -46,7 +49,7 @@ def noisy_or(hmm, previous_state, current_state):
 
 # Defining the forward function
 
-def forward(hmm, observation, forward_tree_sequence, kn_states=None):
+def forward(hmm, observation, forward_tree_sequence, kn_states):
     """
     Args:
         hmm: It is a dictionary given as output by initHMM.py file
@@ -66,25 +69,26 @@ def forward(hmm, observation, forward_tree_sequence, kn_states=None):
         probabilites at each node of the tree, where "N" is possible no. of
         states and "D" is the total number of nodes in the tree
     """
-    if kn_states is None:
-        kn_states = pd.DataFrame(columns=["node", "state"])
+    # if kn_states is None:
+    #     kn_states = pd.DataFrame(columns=["node", "state"])
 
     adjacent_symmetry_matrix_values = hmm["adjacent_symmetry_matrix"]
+
     hmm["state_transition_probabilities"].fillna(0, inplace=True)
     number_of_levels = len(observation)
+
+    print("Forward loop running")
+
     for m in range(number_of_levels):
         hmm["emission_probabilities"][m].fillna(0, inplace=True)
-
     number_of_observations = len(observation[0])
-
     number_of_states = len(hmm["states"])
 
     # We define a variable 'forward_probabilities' which is a numpy array which will be denoting
     # the forward probabilities
     forward_probabilities = np.zeros(
         shape=(number_of_states, number_of_observations))
-    # We tranform the numpy array 'forward_probabilities' into a pandas
-    # DataFrame
+    # We transform the numpy array 'forward_probabilities' into a pandas DataFrame
     forward_probabilities = pd.DataFrame(
         data=forward_probabilities,
         index=hmm["states"],
@@ -95,17 +99,14 @@ def forward(hmm, observation, forward_tree_sequence, kn_states=None):
         boolean_value = set([k]).issubset(list(kn_states["node"]))
         if boolean_value:
             desired_state = list(kn_states["state"][kn_states["node"] == k])[0]
-        previous_state = np.where(
-            adjacent_symmetry_matrix_values[:, k] != 0)[0]
+        previous_state = np.nonzero(adjacent_symmetry_matrix_values[:, k] != 0)[0]
         length_of_next_state = len(previous_state)
 
         if length_of_next_state == 0:
             for state in hmm["states"]:
-                forward_probabilities.loc[state, k] = math.log(
-                    hmm["initial_probabilities"][state])
+                forward_probabilities.loc[state, k] = math.log(hmm["initial_probabilities"][state])
             if boolean_value:
-                desired_state_index = np.where(
-                    desired_state != np.array(hmm["states"]))[0]
+                desired_state_index = np.where(desired_state != np.array(hmm["states"]))[0]
                 # 'mapdf' is a dataframe which maps from old state to new state
                 mapdf = np.array([[i, j] for i, j in zip(
                     range(number_of_states), hmm["states"])])
@@ -145,8 +146,7 @@ def forward(hmm, observation, forward_tree_sequence, kn_states=None):
             for i in index_array:
                 prev = 0
                 for j in range(prev_array.shape[1]):
-                    prev += forward_probabilities.loc[prev_array[i,
-                                                                 j], previous_state[j]]
+                    prev = prev + (forward_probabilities.loc[prev_array[i,j], previous_state[j]])
 
                 output_ = noisy_or(hmm, prev_array[i, :], state)
 
@@ -157,22 +157,44 @@ def forward(hmm, observation, forward_tree_sequence, kn_states=None):
 
                 if -math.inf < temp < 0:
                     logsum.append(temp)
+                # logsum.append(temp)
 
             emit = 0
             for m in range(number_of_levels):
                 if observation[m][k] is not None:
-                    emit = math.log(hmm["emission_probabilities"]
-                                    [m].loc[state, observation[m][k]]) + emit
+                    try:
+                        emit = math.log(hmm["emission_probabilities"][m].loc[state, observation[m][k]]) + emit
+                    except ValueError:
+                        emit = -math.inf
+                        break
+                    # emit = math.log(hmm["emission_probabilities"][m].loc[state, observation[m][k]]) + emit
 
-            forward_probabilities.loc[state, k] = np.log(
-                np.sum(np.exp(logsum))) + emit
+            # forward_probabilities.loc[state, k] = np.log(np.sum(np.exp(logsum))) + emit
+            # forward_probabilities.loc[state, k] = logsumexp(logsum) + emit
+
+            # if k == 122230:
+            #     print("logsum:",logsum)
+            #     print("logsumexp(logsum) :", logsumexp(logsum))
+            #     print("emit:", emit)
+            #     print("\n")
+            # if k == 126751:
+            #     print("logsum:",logsum)
+            #     print("logsumexp(logsum) :", logsumexp(logsum))
+            #     print("emit:", emit)
+            #     print("\n")
+
+            if not logsum:
+                forward_probabilities.loc[state, k] = -math.inf
+                # print("k for which logsum is empty:",k)
+                # print("state for which logsum is empty:", state)
+            else:
+                forward_probabilities.loc[state, k] = logsumexp(logsum) + emit
 
         if boolean_value:
             old_states = range(number_of_states)
             new_states = hmm["states"]
             desired_state_index = np.where(
-                desired_state != np.array(
-                    hmm["states"]))[0]
+                desired_state != np.array(hmm["states"]))[0]
             mapdf = np.array([[i, j] for i, j in zip(old_states, new_states)])
             mapdf = pd.DataFrame(
                 data=mapdf, columns=[
