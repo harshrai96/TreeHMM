@@ -1,5 +1,32 @@
 # TreeHMM 
 
+## How to install
+
+### Create a virtual environment
+
+* On macOS and Linux:
+
+        python3 -m venv envname
+* On Windows:
+
+        py -m venv env
+        
+### Activate the virtual environment
+
+* On macOS and Linux:
+
+        source env/bin/activate
+* On Windows:
+
+        .\env\Scripts\activate
+
+### Run the following in the virtual environment to install the package
+
+        pip install treehmm
+    
+
+## Documentation
+
 There are six python files of interest.
 
 * initHMM.py
@@ -44,10 +71,10 @@ There are six python files of interest.
 
 ### Examples 
 
-* sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)
-* states = ['P', 'N']
-* symbols = [['L', 'R']]
-* hmm = initHMM.initHMM(states, symbols, sample_tree)
+    sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)
+    states = ['P', 'N']
+    symbols = [['L', 'R']]
+    hmm = initHMM.initHMM(states, symbols, sample_tree)
 
 
 ## bwd_seq_gen.py : Calculate the order in which nodes in the tree should be traversed during the backward pass(leaves to roots)
@@ -71,11 +98,11 @@ There are six python files of interest.
 
 ### Examples
 
-* sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)
-* states = ['P', 'N']
-* symbols = [['L', 'R']]
-* hmm = initHMM.initHMM(states, symbols, sample_tree)
-* backward_tree_sequence = bwd_seq_gen.bwd_seq_gen(hmm)
+    sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)
+    states = ['P', 'N']
+    symbols = [['L', 'R']]
+    hmm = initHMM.initHMM(states, symbols, sample_tree)
+    backward_tree_sequence = bwd_seq_gen.bwd_seq_gen(hmm)
 
 ## fwd_seq_gen.py : Calculate the order in which nodes in the tree should be traversed during the forward pass(roots to leaves)
 
@@ -98,11 +125,11 @@ There are six python files of interest.
 
 ### Examples
 
-* sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)
-* states = ['P', 'N']
-* symbols = [['L', 'R']]
-* hmm = initHMM.initHMM(states, symbols, sample_tree)
-* forward_tree_sequence = fwd_seq_gen.fwd_seq_gen(hmm)
+    sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)
+    states = ['P', 'N']
+    symbols = [['L', 'R']]
+    hmm = initHMM.initHMM(states, symbols, sample_tree)
+    forward_tree_sequence = fwd_seq_gen.fwd_seq_gen(hmm)
 
 ## backward.py : Infer the backward probabilities for all the nodes of the treeHMM
 
@@ -131,15 +158,15 @@ There are six python files of interest.
 
 ### Examples 
 
-* sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
-* states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
-* symbols = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
-* hmm = initHMM.initHMM(states, symbols, sample_tree)
-* observation = [["L", "L", "R", "R", "L"]]
-* backward_tree_sequence = bwd_seq_gen.bwd_seq_gen(hmm)
-* data = {'node': [1], 'state': ['P']}
-* kn_states = pd.DataFrame(data=data, columns=["node", "state"])
-* backward_probs = backward.backward(hmm, observation, backward_tree_sequence, kn_states)
+    sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
+    states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
+    symbols = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
+    hmm = initHMM.initHMM(states, symbols, sample_tree)
+    observation = [["L", "L", "R", "R", "L"]]
+    backward_tree_sequence = bwd_seq_gen.bwd_seq_gen(hmm)
+    data = {'node': [1], 'state': ['P']}
+    kn_states = pd.DataFrame(data=data, columns=["node", "state"])
+    backward_probs = backward.backward(hmm, observation, backward_tree_sequence, kn_states)
 
 ## forward.py : Infer the forward probabilities for all the nodes of the treeHMM
 
@@ -168,15 +195,15 @@ There are six python files of interest.
 
 ### Examples 
 
-* sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
-* states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
-* symbols = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
-* hmm = initHMM.initHMM(states, symbols, sample_tree)
-* observation = [["L", "L", "R", "R", "L"]]
-* forward_tree_sequence = fwd_seq_gen.fwd_seq_gen(hmm)
-* data = {'node': [1], 'state': ['P']}
-* kn_states = pd.DataFrame(data=data, columns=["node", "state"])
-* forward_probs = forward.forward(hmm, observation, forward_tree_sequence, kn_states)
+    sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
+    states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
+    symbols = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
+    hmm = initHMM.initHMM(states, symbols, sample_tree)
+    observation = [["L", "L", "R", "R", "L"]]
+    forward_tree_sequence = fwd_seq_gen.fwd_seq_gen(hmm)
+    data = {'node': [1], 'state': ['P']}
+    kn_states = pd.DataFrame(data=data, columns=["node", "state"])
+    forward_probs = forward.forward(hmm, observation, forward_tree_sequence, kn_states)
 
 
 ## baumWelch.py : It consists of two functions
@@ -206,15 +233,15 @@ There are six python files of interest.
 
 ### Examples
 
-* sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
-* states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
-* symbols = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
-* hmm = initHMM.initHMM(states, symbols, sample_tree)
-* data = {'node': [1], 'state': ['P']}
-* kn_states = pd.DataFrame(data=data, columns=["node", "state"])
-* data1 = {'node' : [2,3,4], 'state' : ['P','N','P']}
-* kn_verify = pd.DataFrame(data = data1,columns=["node","state"])
-* newparam = baumWelch.baumWelchRecursion(copy.deepcopy(hmm),observation,kn_states, kn_verify)
+    sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
+    states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
+    symbols = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
+    hmm = initHMM.initHMM(states, symbols, sample_tree)
+    data = {'node': [1], 'state': ['P']}
+    kn_states = pd.DataFrame(data=data, columns=["node", "state"])
+    data1 = {'node' : [2,3,4], 'state' : ['P','N','P']}
+    kn_verify = pd.DataFrame(data = data1,columns=["node","state"])
+    newparam = baumWelch.baumWelchRecursion(copy.deepcopy(hmm),observation,kn_states, kn_verify)
 
 ## baumWelch : Inferring the parameters of a tree Hidden Markov Model via the Baum-Welch algorithm
 
@@ -244,13 +271,18 @@ There are six python files of interest.
 
 ### Examples
 
-* sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
-* states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
-* symbols = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
-* hmm = initHMM.initHMM(states, symbols, sample_tree)
-* data = {'node': [1], 'state': ['P']}
-* kn_states = pd.DataFrame(data=data, columns=["node", "state"])
-* data1 = {'node' : [2,3,4], 'state' : ['P','N','P']}
-* kn_verify = pd.DataFrame(data = data1,columns=["node","state"])
-* learntHMM = baumWelch.baumWelch(copy.deepcopy(hmm),observation,kn_states, kn_verify)
+    sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
+    states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
+    symbols = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
+    hmm = initHMM.initHMM(states, symbols, sample_tree)
+    data = {'node': [1], 'state': ['P']}
+    kn_states = pd.DataFrame(data=data, columns=["node", "state"])
+    data1 = {'node' : [2,3,4], 'state' : ['P','N','P']}
+    kn_verify = pd.DataFrame(data = data1,columns=["node","state"])
+    learntHMM = baumWelch.baumWelch(copy.deepcopy(hmm),observation,kn_states, kn_verify)
+
+## Contributors
+
+## Citations
+
 

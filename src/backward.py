@@ -38,6 +38,7 @@ def backward(hmm, observation, backward_tree_sequence, kn_states=None,q2=None):
         probabilities at each node of the tree, where "N" is possible no. of
         states and "D" is the total number of nodes in the tree
     """
+
     if kn_states is None:
         kn_states = pd.DataFrame(columns=["node", "state"])
 
@@ -64,6 +65,7 @@ def backward(hmm, observation, backward_tree_sequence, kn_states=None,q2=None):
         columns=range(number_of_observations))
     print("Backward loop running")
 
+    # main for loop to calulate the backward_probabilities
     for k in backward_tree_sequence:
 
         boolean_value = set([k]).issubset(list(kn_states["node"]))
@@ -78,6 +80,7 @@ def backward(hmm, observation, backward_tree_sequence, kn_states=None,q2=None):
             if boolean_value:
                 desired_state_index = np.where(
                     desired_state != np.array(hmm["states"]))[0]
+
                 # 'mapdf' is a dataframe which maps from old state to new state
                 mapdf = np.array([[i, j] for i, j in zip(
                     range(number_of_states), hmm["states"])])
@@ -91,6 +94,7 @@ def backward(hmm, observation, backward_tree_sequence, kn_states=None,q2=None):
             continue
 
         next_array = np.array(list(itertools.product(hmm["states"],repeat=length_of_next_state)))
+        # 'inter' is a list to find which next_state is present in the kn_states
         inter = list(set(next_state) & set(kn_states.iloc[:, 0]))
         len_inter = len(inter)
         # 'true_boolean_array' is a boolean array with only True boolean elements

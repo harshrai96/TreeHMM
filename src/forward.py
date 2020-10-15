@@ -25,6 +25,7 @@ def noisy_or(hmm, previous_state, current_state):
     Returns:
         transition_prob: The Noisy_OR probability for the transition
     """
+
     l = len(
         np.where(
             np.array(previous_state) == np.array(

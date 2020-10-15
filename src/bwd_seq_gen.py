@@ -27,14 +27,16 @@ def bwd_seq_gen(hmm, number_of_levels=100):
         backward_tree_sequence: A list of size "D", where "D" is the number of
         nodes in the tree
     """
+    # "adj_mat" is the value of 'adjacent_symmetry_matrix' key from the dictionary 'hmm'.
     adj_mat = hmm["adjacent_symmetry_matrix"]
-    # pair_of_nonzero_indices = np.transpose(np.nonzero(adj_mat))
+    pair_of_nonzero_indices = np.transpose(np.nonzero(adj_mat))
 
-    # Use this when "adj_mat" is a sparse matrix and comment the above line.
-    temp = adj_mat.tocoo()
-    rows = temp.row
-    cols = temp.col
-    pair_of_nonzero_indices = np.array([[r, c] for r, c in zip(rows, cols)])
+    # Use this for pair_of_nonzero_indices when "adj_mat" is a sparse matrix and comment the above line.
+
+    # temp = adj_mat.tocoo()
+    # rows = temp.row
+    # cols = temp.col
+    # pair_of_nonzero_indices = np.array([[r, c] for r, c in zip(rows, cols)])
 
     adj_mat_row_sums = np.squeeze(np.asarray(np.sum(adj_mat, axis=1)))
     adj_mat_col_sums = np.squeeze(np.asarray(np.sum(adj_mat, axis=0)))
@@ -44,7 +46,7 @@ def bwd_seq_gen(hmm, number_of_levels=100):
     order = list()
     order.append(indices_of_root_nodes)  # [array]
 
-    #
+    # this for loop appends the unique next level in order
     for o in order:
         previous_level = o
         next_level = np.array([pair_of_nonzero_indices[list(np.where(pair_of_nonzero_indices[:, 1] == i)[0]), 0] for i in previous_level])
@@ -56,6 +58,7 @@ def bwd_seq_gen(hmm, number_of_levels=100):
     order.append(np.array([]))
     length_of_order = len(order)
 
+    #
     for i in range(1, length_of_order - 1):
         shift = []
         for j in order[i]:
@@ -67,8 +70,10 @@ def bwd_seq_gen(hmm, number_of_levels=100):
         order[i] = np.unique(element_to_update)
         order[i + 1] = np.unique(list(order[i + 1]) + shift)
 
+    # 'backward_order' is an empty list which will hold the backward tree sequence
     backward_order = []
 
+    # this for loop appends the final order list to backward order
     for i in order:
         backward_order = backward_order + list(i)
 

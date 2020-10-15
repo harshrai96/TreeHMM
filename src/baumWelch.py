@@ -43,7 +43,6 @@ def baumWelchRecursion(hmm, observation, kn_states=None, kn_verify=None):
     """
     # 'tree_sequence' is the combined sequence consisting of both forward and backward tree sequences
     tree_sequence = [fwd_seq_gen(hmm), bwd_seq_gen(hmm)]
-
     adjacent_symmetry_matrix_values = hmm["adjacent_symmetry_matrix"]
     Transition_Matrix = hmm["state_transition_probabilities"].copy()
     Transition_Matrix.iloc[:, :] = 0
@@ -56,12 +55,12 @@ def baumWelchRecursion(hmm, observation, kn_states=None, kn_verify=None):
     kn_verify.iloc[:, 1][np.where(kn_verify.iloc[:, 1] == np.array(hmm["states"])[1])[0]] = 0
     kn_verify.iloc[:, 1] = kn_verify.iloc[:, 1].astype('int32')
 
+    # 'fwd' and 'bwd' are the forward and backward probabilities calculated with given custom arguments
     fwd = forward(hmm, observation, tree_sequence[0], kn_states)
     bwd = backward(hmm, observation, tree_sequence[1], kn_states)
 
     f = fwd
     b = bwd
-
 
     number_of_states = len(hmm["states"])
     gamma = f + b
