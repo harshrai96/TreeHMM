@@ -1,16 +1,21 @@
 # TreeHMM 
 
+[Sonething on HMM](https://docs.google.com/document/d/15gZgCOISeQDQXO1C0CoqywoMY2ENmYYNke_fu-jUVJ0/edit) 
+
+
 ## How to install
 
-### Create a virtual environment
+### Create a virtual environment 
+
+* At its core, the main purpose of Python virtual environments is to create an isolated environment for Python projects. This means that each project can have its own dependencies, regardless of what dependencies every other project has.
 
 * On macOS and Linux:
 
         python3 -m venv envname
+        
 * On Windows:
 
-        py -m venv env
-        
+        py -m venv envname        
 ### Activate the virtual environment
 
 * On macOS and Linux:
@@ -25,7 +30,7 @@
         pip install treehmm
     
 
-## Documentation
+## Package Documentation
 
 There are six python files of interest.
 

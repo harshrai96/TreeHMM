@@ -161,28 +161,39 @@ import rpy2.robjects as robjects
 # Sample test variable declaration
 
 def example1():
-    sample_tree = np.array([0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,1,1,
-                            0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]).reshape(6,6)
+    sample_tree = np.array([0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]).reshape(6,6)
     sparse = csr_matrix(sample_tree)
     states = ['P','N']
     symbols = [['L','M','H'],['L','M','H']]
     state_transition_probabilities = np.array([0.1,0.9,0.1,0.9]).reshape(2,2)
     hmm = initHMM.initHMM(states,symbols,sparse,state_transition_probabilities = state_transition_probabilities)
 
+    # For finding the forward_tree_sequence
     forward_tree_sequence = fwd_seq_gen.fwd_seq_gen(hmm)
+
+    # For finding the forward_tree_sequence
     backward_tree_sequence = bwd_seq_gen.bwd_seq_gen(hmm)
 
+    # Declaring the observation list
     observation = [["L","M","H","M","L","L"],["M","L","H","H","L","L"]]
+
+    # Declaring the kn_states
     data = {'node' : [0,3,4], 'state' : ['P','N','P']}
     kn_st = pd.DataFrame(data = data,columns=["node","state"])
 
+    # Declaring the kn+_verify
+    data1 = {'node' : [1,2], 'state' : ['N','P']}
+    kn_verify = pd.DataFrame(data = data1,columns=["node","state"])
+
+    # For calculating the forward probabilities
     # ForwardProbs = forward.forward(hmm,observation,forward_tree_sequence,kn_st)
     # print(ForwardProbs)
+
+    # For calculating the backward probabilities
     # BackwardProbs = backward.backward(hmm,observation,backward_tree_sequence,kn_st)
     # print(BackwardProbs)
 
-    data1 = {'node' : [1,2], 'state' : ['N','P']}
-    kn_verify = pd.DataFrame(data = data1,columns=["node","state"])
+    # The baumWelch part: To find the new parameters and result statistics
     newparam = baumWelch.baumWelchRecursion(copy.deepcopy(hmm), observation, kn_st, kn_verify)
     learntHMM = baumWelch.baumWelch(copy.deepcopy(hmm), observation, kn_st, kn_verify)
 

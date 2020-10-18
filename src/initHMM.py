@@ -59,12 +59,10 @@ def initHMM(
             state_transition_probabilities)
         transition_probabilities_values = pd.DataFrame(
              data=state_transition_probabilities, index=states, columns=states)
-
     for i in range(number_of_levels):
         number_of_symbols = len(symbols[i])
         emission_probabilities_values.append(np.ones(shape=(number_of_states, number_of_symbols)) * (1 / number_of_symbols))
         emission_probabilities_values[i] = pd.DataFrame(data=emission_probabilities_values[i], index=states, columns=symbols[i])
-
         if emission_probabilities is not None:
             emission_probabilities_values[i] = pd.DataFrame(data=emission_probabilities, index=states, columns=symbols[i])
 
