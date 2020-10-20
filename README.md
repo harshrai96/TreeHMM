@@ -2,6 +2,30 @@
 
 ## Table of Contents
 
+* [Concepts Background](#concepts-background)
+  * [What is a Hidden Markov model(HMM)?](#what-is-a-hidden-markov-modelhmm)
+  * [Why a Hidden Markov model(HMM)?](#why-a-hidden-markov-modelhmm)
+  * [What is a tree?](#what-is-a-tree)
+  * [What is a Poly-tree?](#what-is-a-poly-tree)
+  * [What is a Tree Hidden Markov model(TreeHMM)?](#what-is-a-tree-hidden-markov-modeltreehmm)
+  * [Why use a TreeHMM?](#why-use-a-treehmm)
+  * [What is forward-backward algorithm?](#what-is-forward-backward-algorithm)
+  * [What is baum-welch algorithm?](#what-is-baum-welch-algorithm)
+* [Getting Started](#getting-started)
+ * [Prerequisites](#prerequisites)
+    * [Create a virtual environment](#create-a-virtual-environment)
+    * [Activate the virtual environment](#activate-the-virtual-environment)
+* [Installation](#installation)
+* [Package Documentation](#package-documentation)
+  * [initHMM.py : Initializing treeHMM with given parameters](#inithmmpy--initializing-treehmm-with-given-parameters)
+  * [bwd_seq_gen.py : Calculate the order in which nodes in the tree should be traversed during the backward pass(leaves to roots)](#bwd_seq_genpy--calculate-the-order-in-which-nodes-in-the-tree-should-be-traversed-during-the-backward-passleaves-to-roots)
+  * [fwd_seq_gen.py : Calculate the order in which nodes in the tree should be traversed during the forward pass(roots to leaves)](#fwd_seq_genpy--calculate-the-order-in-which-nodes-in-the-tree-should-be-traversed-during-the-forward-passroots-to-leaves)
+  * [backward.py : Infer the backward probabilities for all the nodes of the treeHMM](#backwardpy--infer-the-backward-probabilities-for-all-the-nodes-of-the-treehmm)
+  * [forward.py : It consists of two functions](#forwardpy--it-consists-of-two-functions)
+  * [baumWelch.py : It consists of two functions](#baumwelchpy--it-consists-of-two-functions)
+* [License](#license)
+* [Citations](#citations)
+* [Acknowledgments](#acknowledgments)
 
 ## Concepts Background
 ### What is a Hidden Markov model(HMM)?
