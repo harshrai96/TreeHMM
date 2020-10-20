@@ -13,6 +13,8 @@ They are at the heart of a diverse range of programs, including genefinding,
 profile searches, multiple sequence alignment and regulatory site identification. 
 HMMs are the Legos of computational sequence analysis.
 
+<img src="https://github.com/harshrai96/TreeHMM/blob/master/Readme_images/HMM.png" width="600">
+
 ## Why a Hidden Markov model(HMM)?
 
 * There are lots of cases where you can't observe the states you are interested in but you
@@ -33,8 +35,12 @@ Tree represents the nodes connected by edges. It is a non-linear data structure.
 ## What is a Tree Hidden Markov model(TreeHMM)?
 * Ask Dr. Pouria
 
+<img src="https://github.com/harshrai96/TreeHMM/blob/master/Readme_images/Rooted_tree.png" width="600">
+<img src="https://github.com/harshrai96/TreeHMM/blob/master/Readme_images/Polytree_hmm.png" width="600">
+
 ## Why use a TreeHMM?
 * Ask Dr. Pouria
+
 
 ## What is forward-backward algorithm?
 
@@ -44,6 +50,11 @@ Tree represents the nodes connected by edges. It is a non-linear data structure.
  observation sequences in recognition applications.
  The goal of the forward-backward algorithm is to find the conditional 
  distribution over hidden states given the data.
+ 
+ <img src="https://github.com/harshrai96/TreeHMM/blob/master/Readme_images/Forward.png" width="600">
+ 
+ <img src="https://github.com/harshrai96/TreeHMM/blob/master/Readme_images/Backward.png" width="600">
+
 
 ## What is baum-welch algorithm?
 
