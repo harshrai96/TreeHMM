@@ -19,6 +19,7 @@
 * [Citations](#Citations)
 * [Acknowledgements](#acknowledgements)
 
+<!-- Concepts Background -->
 ## Concepts Background
 ### What is a Hidden Markov model(HMM)?
 
