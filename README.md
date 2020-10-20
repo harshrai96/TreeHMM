@@ -41,8 +41,6 @@ HMMs are the Legos of computational sequence analysis.
 
 
 ### Why a Hidden Markov model(HMM)?
-=======
-## Why a Hidden Markov model(HMM)?
 
 * There are lots of cases where you can't observe the states you are interested in but you
 can see the effect of being in the state. The observed effect of being in the state is called "emissions" or "observations".
