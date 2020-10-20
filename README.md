@@ -2,7 +2,6 @@
 
 ## Table of Contents
 
-* [License](#license)
 
 ## What is a Hidden Markov model(HMM)?
 
