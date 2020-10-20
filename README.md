@@ -2,24 +2,7 @@
 
 ## Table of Contents
 
-* [Concepts Background](#concepts-background)
-  * [What is a Hidden Markov model(HMM)?](#What is a Hidden Markov model(HMM)?)
-  * [Why a Hidden Markov model(HMM)?](#Why a Hidden Markov model(HMM)?)
-  * [What is a tree?](#What is a tree?)
-  * [What is a Poly-tree?](#What is a Poly-tree?)
-  * [What is a Tree Hidden Markov model(TreeHMM)?](#What is a Tree Hidden Markov model(TreeHMM)?)
-  * [Why use a TreeHMM?](#Why use a TreeHMM?)
-  * [What is forward-backward algorithm?](#What is forward-backward algorithm?)
-  * [What is baum-welch algorithm?](#WWhat is baum-welch algorithm?) 
-* [Getting Started](#getting-started)
-  * [Prerequisites](#prerequisites)
-  * [Installation](#installation)
-* [Package Documentation](#Package Documentation)
-* [License](#license)
-* [Citations](#Citations)
-* [Acknowledgements](#acknowledgements)
 
-<!-- Concepts Background -->
 ## Concepts Background
 ### What is a Hidden Markov model(HMM)?
 
@@ -397,7 +380,7 @@ There are six python files of interest.
     learntHMM = baumWelch.baumWelch(copy.deepcopy(hmm),observation,observed_states_training_nodes, observed_states_validation_nodes)
 
 
-<!-- LICENSE -->
+
 ## License 
 Distributed under the GNU General Public License v3.0. See `LICENSE` for more information
 
