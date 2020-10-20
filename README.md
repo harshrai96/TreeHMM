@@ -2,9 +2,25 @@
 
 ## Table of Contents
 
+* [Concepts Background](#Concepts Background)
+  * [What is a Hidden Markov model(HMM)?](#What is a Hidden Markov model(HMM)?)
+  * [Why a Hidden Markov model(HMM)?](#Why a Hidden Markov model(HMM)?)
+  * [What is a tree?](#What is a tree?)
+  * [What is a Poly-tree?](#What is a Poly-tree?)
+  * [What is a Tree Hidden Markov model(TreeHMM)?](#What is a Tree Hidden Markov model(TreeHMM)?)
+  * [Why use a TreeHMM?](#Why use a TreeHMM?)
+  * [What is forward-backward algorithm?](#What is forward-backward algorithm?)
+  * [What is baum-welch algorithm?](#WWhat is baum-welch algorithm?) 
+* [Getting Started](#getting-started)
+  * [Prerequisites](#prerequisites)
+  * [Installation](#installation)
+* [Package Documentation](#Package Documentation)
 * [License](#license)
+* [Citations](#Citations)
+* [Acknowledgements](#acknowledgements)
 
-## What is a Hidden Markov model(HMM)?
+## Concepts Background
+### What is a Hidden Markov model(HMM)?
 
 * Hidden Markov models (HMMs) are a formal foundation for making probabilistic 
 models of linear sequence. They provide a conceptual 
@@ -13,12 +29,14 @@ They are at the heart of a diverse range of programs, including genefinding,
 profile searches, multiple sequence alignment and regulatory site identification. 
 HMMs are the Legos of computational sequence analysis.
 
-## Why a Hidden Markov model(HMM)?
+<img src="https://github.com/harshrai96/TreeHMM/blob/master/Readme_images/HMM.png" width="600">
+
+### Why a Hidden Markov model(HMM)?
 
 * There are lots of cases where you can't observe the states you are interested in but you
 can see the effect of being in the state. The observed effect of being in the state is called "emissions" or "observations".
 
-## What is a tree?
+### What is a tree?
 In graph theory, a tree is an undirected graph in which any two vertices are connected by exactly one path, or equivalently a connected acyclic undirected graph. 
 Tree represents the nodes connected by edges. It is a non-linear data structure. It has the following properties.
 
@@ -26,17 +44,21 @@ Tree represents the nodes connected by edges. It is a non-linear data structure.
 * Every node other than the root is associated with one parent node.
 * Each node can have an arbitrary number of child node.
 
-## What is a Poly-tree?
+### What is a Poly-tree?
 
 * A poly-tree is simply a directed acyclic graph whose underlying undirected graph is a tree.
 
-## What is a Tree Hidden Markov model(TreeHMM)?
+### What is a Tree Hidden Markov model(TreeHMM)?
 * Ask Dr. Pouria
 
-## Why use a TreeHMM?
+<img src="https://github.com/harshrai96/TreeHMM/blob/master/Readme_images/Rooted_tree.png" width="600">
+<img src="https://github.com/harshrai96/TreeHMM/blob/master/Readme_images/Polytree_hmm.png" width="600">
+
+### Why use a TreeHMM?
 * Ask Dr. Pouria
 
-## What is forward-backward algorithm?
+
+### What is forward-backward algorithm?
 
 * The Forward–Backward algorithm is the conventional, recursive, efficient
  way to evaluate a Hidden Markov Model, that is, to compute the probability of 
@@ -44,8 +66,13 @@ Tree represents the nodes connected by edges. It is a non-linear data structure.
  observation sequences in recognition applications.
  The goal of the forward-backward algorithm is to find the conditional 
  distribution over hidden states given the data.
+ 
+ <img src="https://github.com/harshrai96/TreeHMM/blob/master/Readme_images/Forward.png" width="600">
+ 
+ <img src="https://github.com/harshrai96/TreeHMM/blob/master/Readme_images/Backward.png" width="600">
 
-## What is baum-welch algorithm?
+
+### What is baum-welch algorithm?
 
 * The Baum-Welch algorithm is a dynamic programming approach and a 
 special case of the expectation-maximization algorithm (EM algorithm).
@@ -103,7 +130,7 @@ There are six python files of interest.
 
 ### Usage 
 
-* def initHMM(States, Symbols, treemat, startProbs = None, transProbs = None, emissionProbs = None):
+* def initHMM(states, symbols, adjacent_symmetry_matrix, initial_probabilities=None, state_transition_probabilities=None, emission_probabilities=None):
 
 ### Arguments
 
