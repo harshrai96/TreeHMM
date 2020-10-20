@@ -2,6 +2,7 @@
 
 ## Table of Contents
 
+<<<<<<< HEAD
 * [Concepts Background](#concepts-background)
   * [What is a Hidden Markov model(HMM)?](#what-is-a-hidden-markov-modelhmm)
   * [Why a Hidden Markov model(HMM)?](#why-a-hidden-markov-modelhmm)
@@ -26,6 +27,8 @@
 * [License](#license)
 * [Citations](#citations)
 * [Acknowledgments](#acknowledgments)
+=======
+>>>>>>> 0b0be6704b8ec2aadac02fda4b6dcf2897b76b61
 
 ## Concepts Background
 ### What is a Hidden Markov model(HMM)?
@@ -39,7 +42,11 @@ HMMs are the Legos of computational sequence analysis.
 
 <img src="https://github.com/harshrai96/TreeHMM/blob/master/Readme_images/HMM.png" width="600">
 
+<<<<<<< HEAD
 ### Why a Hidden Markov model(HMM)?
+=======
+## Why a Hidden Markov model(HMM)?
+>>>>>>> 0b0be6704b8ec2aadac02fda4b6dcf2897b76b61
 
 * There are lots of cases where you can't observe the states you are interested in but you
 can see the effect of being in the state. The observed effect of being in the state is called "emissions" or "observations".
@@ -62,11 +69,19 @@ Tree represents the nodes connected by edges. It is a non-linear data structure.
 <img src="https://github.com/harshrai96/TreeHMM/blob/master/Readme_images/Rooted_tree.png" width="600">
 <img src="https://github.com/harshrai96/TreeHMM/blob/master/Readme_images/Polytree_hmm.png" width="600">
 
+<<<<<<< HEAD
 ### Why use a TreeHMM?
 * Ask Dr. Pouria
 
 
 ### What is forward-backward algorithm?
+=======
+## Why use a TreeHMM?
+* Ask Dr. Pouria
+
+
+## What is forward-backward algorithm?
+>>>>>>> 0b0be6704b8ec2aadac02fda4b6dcf2897b76b61
 
 * The Forward–Backward algorithm is the conventional, recursive, efficient
  way to evaluate a Hidden Markov Model, that is, to compute the probability of 
@@ -78,6 +93,10 @@ Tree represents the nodes connected by edges. It is a non-linear data structure.
  <img src="https://github.com/harshrai96/TreeHMM/blob/master/Readme_images/Forward.png" width="600">
  
  <img src="https://github.com/harshrai96/TreeHMM/blob/master/Readme_images/Backward.png" width="600">
+<<<<<<< HEAD
+=======
+
+>>>>>>> 0b0be6704b8ec2aadac02fda4b6dcf2897b76b61
 
 
 ### What is baum-welch algorithm?
