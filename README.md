@@ -2,7 +2,7 @@
 
 ## Table of Contents
 
-* [Concepts Background](#Concepts Background)
+* [Concepts Background](#concepts-background)
   * [What is a Hidden Markov model(HMM)?](#What is a Hidden Markov model(HMM)?)
   * [Why a Hidden Markov model(HMM)?](#Why a Hidden Markov model(HMM)?)
   * [What is a tree?](#What is a tree?)
