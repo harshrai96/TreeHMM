@@ -49,17 +49,17 @@ def noisy_or(hmm, previous_state, current_state):
 
 # Defining the forward function
 
-def forward(hmm, observation, forward_tree_sequence, kn_states,q1=None):
+def forward(hmm, emission_observation, forward_tree_sequence, observed_states_training_nodes,q1=None):
     """
     Args:
         hmm: It is a dictionary given as output by initHMM.py file
-        observation: observation is a list of list consisting "k" lists for "k"
+        emission_observation: emission_observation is a list of list consisting "k" lists for "k"
             features, each vector being a character series of discrete emission
             values at different nodes serially sorted by node number
         forward_tree_sequence: It is a list denoting the order of nodes in which
             the tree should be traversed in forward direction(from roots to
             leaves).
-        kn_states: It is a (L * 2) dataframe where L is the number of training
+        observed_states_training_nodes: It is a (L * 2) dataframe where L is the number of training
             nodes where state values are known. First column should be the node
             number and the second column being the corresponding known state
             values of the nodes
@@ -70,14 +70,14 @@ def forward(hmm, observation, forward_tree_sequence, kn_states,q1=None):
         states and "D" is the total number of nodes in the tree
     """
 
-    adjacent_symmetry_matrix_values = hmm["adjacent_symmetry_matrix"]
+    adjacent_symmetry_matrix = hmm["adjacent_symmetry_matrix"]
     hmm["state_transition_probabilities"].fillna(0, inplace=True)
-    number_of_levels = len(observation)
+    number_of_levels = len(emission_observation)
     print("Forward loop running")
 
     for m in range(number_of_levels):
         hmm["emission_probabilities"][m].fillna(0, inplace=True)
-    number_of_observations = len(observation[0])
+    number_of_observations = len(emission_observation[0])
     number_of_states = len(hmm["states"])
 
     # We define a variable 'forward_probabilities' which is a numpy array which will be denoting
@@ -92,10 +92,10 @@ def forward(hmm, observation, forward_tree_sequence, kn_states,q1=None):
 
     for k in forward_tree_sequence:
 
-        boolean_value = set([k]).issubset(list(kn_states["node"]))
+        boolean_value = set([k]).issubset(list(observed_states_training_nodes["node"]))
         if boolean_value:
-            desired_state = list(kn_states["state"][kn_states["node"] == k])[0]
-        previous_state = np.nonzero(adjacent_symmetry_matrix_values[:, k] != 0)[0]
+            desired_state = list(observed_states_training_nodes["state"][observed_states_training_nodes["node"] == k])[0]
+        previous_state = np.nonzero(adjacent_symmetry_matrix[:, k] != 0)[0]
         length_of_next_state = len(previous_state)
 
         if length_of_next_state == 0:
@@ -120,16 +120,16 @@ def forward(hmm, observation, forward_tree_sequence, kn_states,q1=None):
                 itertools.product(
                     hmm["states"],
                     repeat=length_of_next_state)))
-        inter = list(set(previous_state) & set(kn_states.iloc[:, 0]))
+        inter = list(set(previous_state) & set(observed_states_training_nodes.iloc[:, 0]))
         len_inter = len(inter)
         # 'true_boolean_array' is a boolean array with only True boolean elements
         true_boolean_array = np.repeat(True, prev_array.shape[0], axis=0)
 
         if len_inter != 0:
             for i in range(len_inter):
-                ind = np.where(kn_states.iloc[:, 0] == inter[i])[0][0]
+                ind = np.where(observed_states_training_nodes.iloc[:, 0] == inter[i])[0][0]
                 ind1 = np.where(inter[i] == previous_state)[0][0]
-                desired_state = kn_states.iloc[ind, 1]
+                desired_state = observed_states_training_nodes.iloc[ind, 1]
                 true_boolean_array = np.logical_and(
                     len(np.where(prev_array[:, ind1] == desired_state)[0]), true_boolean_array)
 
@@ -156,9 +156,9 @@ def forward(hmm, observation, forward_tree_sequence, kn_states,q1=None):
 
             emit = 0
             for m in range(number_of_levels):
-                if observation[m][k] is not None:
+                if emission_observation[m][k] is not None:
                     try:
-                        emit = math.log(hmm["emission_probabilities"][m].loc[state, observation[m][k]]) + emit
+                        emit = math.log(hmm["emission_probabilities"][m].loc[state, emission_observation[m][k]]) + emit
                         print("Fwd Emit is working for node :", k)
                     except ValueError:
                         emit = -math.inf
@@ -208,11 +208,11 @@ def run_an_example_2():
     states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
     symbols = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
     hmm = initHMM.initHMM(states, symbols, sample_tree)
-    observation = [["L", "L", "R", "R", "L"]]
+    emission_observation = [["L", "L", "R", "R", "L"]]
     forward_tree_sequence = fwd_seq_gen.fwd_seq_gen(hmm)
     data = {'node': [1], 'state': ['P']}
-    kn_states = pd.DataFrame(data=data, columns=["node", "state"])
-    forward_probs = forward.forward(hmm,observation,forward_tree_sequence,kn_states)
+    observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
+    forward_probs = forward.forward(hmm,emission_observation,forward_tree_sequence,observed_states_training_nodes)
 
 if __name__ == "__main__":
     run_an_example_1()

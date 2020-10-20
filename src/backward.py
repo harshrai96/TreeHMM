@@ -18,17 +18,17 @@ from scipy.special import logsumexp
 
 # Defining the backward function
 
-def backward(hmm, observation, backward_tree_sequence, kn_states=None,q2=None):
+def backward(hmm, emission_observation, backward_tree_sequence, observed_states_training_nodes=None,q2=None):
     """
     Args:
         hmm: It is a dictionary given as output by initHMM.py file
-        observation: observation is a list of list consisting "k" lists for "k"
+        emission_observation: emission_observation is a list of list consisting "k" lists for "k"
             features, each vector being a character series of discrete emission
             values at different nodes serially sorted by node number
         backward_tree_sequence: It is a list denoting the order of nodes in
             which the tree should be traversed in backward direction(from leaves
             to roots).It's the output of bwd_seq_gen function.
-        kn_states: It is a (L * 2) dataframe where L is the number of training
+        observed_states_training_nodes: It is a (L * 2) dataframe where L is the number of training
             nodes where state values are known. First column should be the node
             number and the second column being the corresponding known state
             values of the nodes
@@ -39,17 +39,17 @@ def backward(hmm, observation, backward_tree_sequence, kn_states=None,q2=None):
         states and "D" is the total number of nodes in the tree
     """
 
-    if kn_states is None:
-        kn_states = pd.DataFrame(columns=["node", "state"])
+    if observed_states_training_nodes is None:
+        observed_states_training_nodes = pd.DataFrame(columns=["node", "state"])
 
-    adjacent_symmetry_matrix_values = hmm["adjacent_symmetry_matrix"]
+    adjacent_symmetry_matrix = hmm["adjacent_symmetry_matrix"]
     hmm["state_transition_probabilities"].fillna(0, inplace=True)
-    number_of_levels = len(observation)
+    number_of_levels = len(emission_observation)
 
     for m in range(number_of_levels):
         hmm["emission_probabilities"][m].fillna(0, inplace=True)
 
-    number_of_observations = len(observation[0])
+    number_of_observations = len(emission_observation[0])
 
     number_of_states = len(hmm["states"])
 
@@ -68,10 +68,10 @@ def backward(hmm, observation, backward_tree_sequence, kn_states=None,q2=None):
     # main for loop to calulate the backward_probabilities
     for k in backward_tree_sequence:
 
-        boolean_value = set([k]).issubset(list(kn_states["node"]))
+        boolean_value = set([k]).issubset(list(observed_states_training_nodes["node"]))
         if boolean_value:
-            desired_state = list(kn_states["state"][kn_states["node"] == k])[0]
-        next_state = np.nonzero(adjacent_symmetry_matrix_values[k, :] != 0)[1]
+            desired_state = list(observed_states_training_nodes["state"][observed_states_training_nodes["node"] == k])[0]
+        next_state = np.nonzero(adjacent_symmetry_matrix[k, :] != 0)[1]
         length_of_next_state = len(next_state)
 
         if length_of_next_state == 0:
@@ -94,17 +94,17 @@ def backward(hmm, observation, backward_tree_sequence, kn_states=None,q2=None):
             continue
 
         next_array = np.array(list(itertools.product(hmm["states"],repeat=length_of_next_state)))
-        # 'inter' is a list to find which next_state is present in the kn_states
-        inter = list(set(next_state) & set(kn_states.iloc[:, 0]))
+        # 'inter' is a list to find which next_state is present in the observed_states_training_nodes
+        inter = list(set(next_state) & set(observed_states_training_nodes.iloc[:, 0]))
         len_inter = len(inter)
         # 'true_boolean_array' is a boolean array with only True boolean elements
         true_boolean_array = np.repeat(True, next_array.shape[0], axis=0)
         if len_inter != 0:
             for i in range(len_inter):
                 index_variable_1 = np.where(
-                    kn_states.iloc[:, 0] == inter[i])[0][0]
+                    observed_states_training_nodes.iloc[:, 0] == inter[i])[0][0]
                 index_variable_2 = np.where(inter[i] == next_state)[0][0]
-                desired_state = kn_states.iloc[index_variable_1, 1]
+                desired_state = observed_states_training_nodes.iloc[index_variable_1, 1]
                 true_boolean_array = np.logical_and(len(np.where(
                     next_array[:, index_variable_2] == desired_state)[0]), true_boolean_array)
 
@@ -118,9 +118,9 @@ def backward(hmm, observation, backward_tree_sequence, kn_states=None,q2=None):
                 for j in range(next_array.shape[1]):
                     emit = 0
                     for m in range(number_of_levels):
-                        if observation[m][k] is not None:
+                        if emission_observation[m][k] is not None:
                             try:
-                                emit = math.log(hmm["emission_probabilities"][m].loc[next_array[i, j], observation[m][next_state[j]]]) + emit
+                                emit = math.log(hmm["emission_probabilities"][m].loc[next_array[i, j], emission_observation[m][next_state[j]]]) + emit
                             except ValueError:
                                 emit = -math.inf
                                 break
@@ -162,12 +162,12 @@ def run_an_example():
     states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
     symbols = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
     hmm = initHMM.initHMM(states, symbols, sample_tree)
-    observation = [["L", "L", "R", "R", "L"]]
+    emission_observation = [["L", "L", "R", "R", "L"]]
     backward_tree_sequence = bwd_seq_gen.bwd_seq_gen(hmm)
     data = {'node': [1], 'state': ['P']}
-    kn_states = pd.DataFrame(data=data, columns=["node", "state"])
+    observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
     backward_probs = backward.backward(
-        hmm, observation, backward_tree_sequence, kn_states)
+        hmm, emission_observation, backward_tree_sequence, observed_states_training_nodes)
 
 
 # sample call to the function

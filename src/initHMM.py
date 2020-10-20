@@ -12,7 +12,7 @@ import pandas as pd
 def initHMM(
         states,
         symbols,
-        adjacent_symmetry_matrix_values,
+        adjacent_symmetry_matrix,
         initial_probabilities=None,
         state_transition_probabilities=None,
         emission_probabilities=None):
@@ -24,7 +24,7 @@ def initHMM(
         symbols: It is a list of numpy array consisting discrete values of
             emissions(where "M" is the possible number of emissions) for each
             feature variable
-        adjacent_symmetry_matrix_values: It is the Adjacent Symmetry Matrix that
+        adjacent_symmetry_matrix: It is the Adjacent Symmetry Matrix that
             describes the topology of the tree
         initial_probabilities: It is a numpy array of shape (N * 1) containing
             initial probabilities for the states, where "N" is the possible
@@ -72,7 +72,7 @@ def initHMM(
         "initial_probabilities": initial_probabilities_values,
         "state_transition_probabilities": transition_probabilities_values,
         "emission_probabilities": emission_probabilities_values,
-        "adjacent_symmetry_matrix": adjacent_symmetry_matrix_values}
+        "adjacent_symmetry_matrix": adjacent_symmetry_matrix}
 
 
 def run_an_example():

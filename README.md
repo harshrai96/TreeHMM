@@ -1,11 +1,62 @@
 # TreeHMM 
 
-[Sonething on HMM](https://docs.google.com/document/d/15gZgCOISeQDQXO1C0CoqywoMY2ENmYYNke_fu-jUVJ0/edit) 
+## Table of Contents
 
+* [License](#license)
 
-## How to install
+## What is a Hidden Markov model(HMM)?
 
-### Create a virtual environment 
+* Hidden Markov models (HMMs) are a formal foundation for making probabilistic 
+models of linear sequence. They provide a conceptual 
+toolkit for building complex models just by drawing an intuitive picture. 
+They are at the heart of a diverse range of programs, including genefinding, 
+profile searches, multiple sequence alignment and regulatory site identification. 
+HMMs are the Legos of computational sequence analysis.
+
+## Why a Hidden Markov model(HMM)?
+
+* There are lots of cases where you can't observe the states you are interested in but you
+can see the effect of being in the state. The observed effect of being in the state is called "emissions" or "observations".
+
+## What is a tree?
+In graph theory, a tree is an undirected graph in which any two vertices are connected by exactly one path, or equivalently a connected acyclic undirected graph. 
+Tree represents the nodes connected by edges. It is a non-linear data structure. It has the following properties.
+
+* One node is marked as Root node.
+* Every node other than the root is associated with one parent node.
+* Each node can have an arbitrary number of child node.
+
+## What is a Poly-tree?
+
+* A poly-tree is simply a directed acyclic graph whose underlying undirected graph is a tree.
+
+## What is a Tree Hidden Markov model(TreeHMM)?
+* Ask Dr. Pouria
+
+## Why use a TreeHMM?
+* Ask Dr. Pouria
+
+## What is forward-backward algorithm?
+
+* The Forward–Backward algorithm is the conventional, recursive, efficient
+ way to evaluate a Hidden Markov Model, that is, to compute the probability of 
+ an observation sequence given the model. This probability can be used to classify
+ observation sequences in recognition applications.
+ The goal of the forward-backward algorithm is to find the conditional 
+ distribution over hidden states given the data.
+
+## What is baum-welch algorithm?
+
+* The Baum-Welch algorithm is a dynamic programming approach and a 
+special case of the expectation-maximization algorithm (EM algorithm).
+It's purpose is to tune the parameters of the HMM, namely the state 
+transition matrix, the emission matrix, and the initial state distribution,
+such that the model is maximally like the observed data.
+
+## Getting Started
+
+### Prerequisites 
+#### Create a virtual environment 
 
 * At its core, the main purpose of Python virtual environments is to create an isolated environment for Python projects. This means that each project can have its own dependencies, regardless of what dependencies every other project has.
 
@@ -16,7 +67,7 @@
 * On Windows:
 
         py -m venv envname        
-### Activate the virtual environment
+#### Activate the virtual environment
 
 * On macOS and Linux:
 
@@ -25,12 +76,14 @@
 
         .\env\Scripts\activate
 
-### Run the following in the virtual environment to install the package
+### Installation
 
         pip install treehmm
     
 
-## Package Documentation
+# Package Documentation
+
+This package is based on a R package and is 40% faster than it.
 
 There are six python files of interest.
 
@@ -58,7 +111,7 @@ There are six python files of interest.
 * symbols: It is a list of numpy array consisting discrete values of
             emissions(where "M" is the possible number of emissions) for each
             feature variable
-* adjacent_symmetry_matrix_values: It is the Adjacent Symmetry Matrix that
+* adjacent_symmetry_matrix: It is the Adjacent Symmetry Matrix that
             describes the topology of the tree
 * initial_probabilities: It is a numpy array of shape (N * 1) containing
             initial probabilities for the states, where "N" is the possible
@@ -72,7 +125,7 @@ There are six python files of interest.
 	    
 ### Returns
         
-* hmm: A dictionary describing the parameters of treeHMM
+* hmm: A dictionary consisting of above initialised parameters of treeHMM
 
 ### Examples 
 
@@ -144,14 +197,14 @@ There are six python files of interest.
 
 ### Usage
 
-* def backward(hmm, observation, backward_tree_sequence, kn_states = None):
+* def backward(hmm, observation, backward_tree_sequence, observed_states_training_nodes = None):
 
 ### Arguments
 
 * hmm: It is a dictionary given as output by initHMM.py file
 * observation: observation is a list of list consisting "k" lists for "k" features, each vector being a character series of discrete emission values at different nodes serially sorted by node number
 * backward_tree_sequence: It is a list denoting the order of nodes in which the tree should be traversed in backward direction(from leaves to roots).It's the output of bwd_seq_gen function.
-* kn_states: (Optional) It is a (L * 2) dataframe where L is the number of training nodes where state values are known. First column should be the node number and the second column being the corresponding known state values of the nodes.
+* observed_states_training_nodes: (Optional) It is a (L * 2) dataframe where L is the number of training nodes where state values are known. First column should be the node number and the second column being the corresponding known state values of the nodes.
 
 ### Returns
 
@@ -170,10 +223,39 @@ There are six python files of interest.
     observation = [["L", "L", "R", "R", "L"]]
     backward_tree_sequence = bwd_seq_gen.bwd_seq_gen(hmm)
     data = {'node': [1], 'state': ['P']}
-    kn_states = pd.DataFrame(data=data, columns=["node", "state"])
-    backward_probs = backward.backward(hmm, observation, backward_tree_sequence, kn_states)
+    observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
+    backward_probs = backward.backward(hmm, observation, backward_tree_sequence, observed_states_training_nodes)
 
-## forward.py : Infer the forward probabilities for all the nodes of the treeHMM
+## forward.py : It consists of two functions
+
+* noisy_or
+* forward
+
+## noisy_or : Calculating the probability of transition from multiple nodes to given node in the tree
+
+### Description 
+* Calculating the probability of transition from multiple nodes to given node in the tree
+
+### Usage 
+* def noisy_or(hmm, prev_state, cur_state):
+
+### Arguments 
+* hmm: It is a dictionary given as output by initHMM.py file
+* previous_state: It is a numpy array containing state variable values for the previous nodes
+* current_state: It is a string denoting the state variable value forcurrent node
+
+### Returns:
+* transition_prob: The Noisy_OR probability for the transition
+
+### Examples 
+
+    sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
+    states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
+    symbols = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
+    hmm = initHMM.initHMM(states, symbols, sample_tree)
+    transition_prob = forward.noisy_or(hmm,states,"P") # for transition from P & N simultaneously to P
+
+## forward : Infer the forward probabilities for all the nodes of the treeHMM
 
 ### Description 
 
@@ -181,14 +263,14 @@ There are six python files of interest.
 
 ### Usage
 
-* def forward(hmm, observation, forward_tree_sequence, kn_states = None):
+* def forward(hmm, observation, forward_tree_sequence, observed_states_training_nodes = None):
 
 ### Arguments
 
 * hmm: It is a dictionary given as output by initHMM.py file
 * observation: observation is a list of list consisting "k" lists for "k" features, each vector being a character series of discrete emission values at different nodes serially sorted by node number
 * forward_tree_sequence: It is a list denoting the order of nodes in which the tree should be traversed in backward direction(from leaves to roots).It's the output of bwd_seq_gen function.
-* kn_states: (Optional) It is a (L * 2) dataframe where L is the number of training nodes where state values are known. First column should be the node number and the second column being the corresponding known state values of the nodes.
+* observed_states_training_nodes: (Optional) It is a (L * 2) dataframe where L is the number of training nodes where state values are known. First column should be the node number and the second column being the corresponding known state values of the nodes.
 
 ### Returns
 
@@ -207,8 +289,8 @@ There are six python files of interest.
     observation = [["L", "L", "R", "R", "L"]]
     forward_tree_sequence = fwd_seq_gen.fwd_seq_gen(hmm)
     data = {'node': [1], 'state': ['P']}
-    kn_states = pd.DataFrame(data=data, columns=["node", "state"])
-    forward_probs = forward.forward(hmm, observation, forward_tree_sequence, kn_states)
+    observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
+    forward_probs = forward.forward(hmm, observation, forward_tree_sequence, observed_states_training_nodes)
 
 
 ## baumWelch.py : It consists of two functions
@@ -224,14 +306,14 @@ There are six python files of interest.
 
 ### Usage
 
-* def baumWelchRecursion(hmm, observation, kn_states=None, kn_verify=None):
+* def baumWelchRecursion(hmm, observation, observed_states_training_nodes=None, observed_states_validation_nodes=None):
 
 ### Arguments
 
 * hmm: It is a dictionary given as output by initHMM.py file
 * observation: observation is a list of list consisting "k" lists for "k" features, each vector being a character series of discrete emission values at different nodes serially sorted by node number
-* kn_states: (Optional) It is a (L * 2) dataframe where L is the number of training nodes where state values are known. First column should be the node number and the second column being the corresponding known state values of the nodes
-* kn_verify: (Optional) It is a (L * 2) dataframe where L is the number of validation nodes where state values are known. First column should be the node number and the second column being the corresponding known state values of the nodes
+* observed_states_training_nodes: (Optional) It is a (L * 2) dataframe where L is the number of training nodes where state values are known. First column should be the node number and the second column being the corresponding known state values of the nodes
+* observed_states_validation_nodes: (Optional) It is a (L * 2) dataframe where L is the number of validation nodes where state values are known. First column should be the node number and the second column being the corresponding known state values of the nodes
 
 ### Returns
 * newparam: A dictionary containing estimated Transition and Emission probability matrices
@@ -243,10 +325,10 @@ There are six python files of interest.
     symbols = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
     hmm = initHMM.initHMM(states, symbols, sample_tree)
     data = {'node': [1], 'state': ['P']}
-    kn_states = pd.DataFrame(data=data, columns=["node", "state"])
+    observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
     data1 = {'node' : [2,3,4], 'state' : ['P','N','P']}
-    kn_verify = pd.DataFrame(data = data1,columns=["node","state"])
-    newparam = baumWelch.baumWelchRecursion(copy.deepcopy(hmm),observation,kn_states, kn_verify)
+    observed_states_validation_nodes = pd.DataFrame(data = data1,columns=["node","state"])
+    newparam = baumWelch.baumWelchRecursion(copy.deepcopy(hmm),observation,observed_states_training_nodes, observed_states_validation_nodes)
 
 ## baumWelch : Inferring the parameters of a tree Hidden Markov Model via the Baum-Welch algorithm
 
@@ -256,15 +338,15 @@ There are six python files of interest.
 
 ### Usage
 
-* def baumWelch(hmm, observation, kn_states=None, kn_verify=None, maxIterations=50, delta=1e-5, pseudoCount=0):
+* def baumWelch(hmm, observation, observed_states_training_nodes=None, observed_states_validation_nodes=None, maxIterations=50, delta=1e-5, pseudoCount=0):
 
 
 ### Arguments
 
 * hmm: It is a dictionary given as output by initHMM.py file
 * observation: observation is a list of list consisting "k" lists for "k" features, each vector being a character series of discrete emission values at different nodes serially sorted by node number
-* kn_states: (Optional) It is a (L * 2) dataframe where L is the number of training nodes where state values are known. First column should be the node number and the second column being the corresponding known state values of the nodes
-* kn_verify: (Optional) It is a (L * 2) dataframe where L is the number of validation nodes where state values are known. First column should be the node number and the second column being the corresponding known state values of the nodes
+* observed_states_training_nodes: (Optional) It is a (L * 2) dataframe where L is the number of training nodes where state values are known. First column should be the node number and the second column being the corresponding known state values of the nodes
+* observed_states_validation_nodes: (Optional) It is a (L * 2) dataframe where L is the number of validation nodes where state values are known. First column should be the node number and the second column being the corresponding known state values of the nodes
 * maxIterations: It is the maximum number of iterations in the Baum-Welch algorithm. Default is 50
 * delta: Additional termination condition, if the transition and emission matrices converge, before reaching the maximum number of iterations(code{maxIterations}). The difference of transition and emission parameters in consecutive iterations must be smaller than code{delta} to terminate the algorithm. Default is 1e-5.
 * pseudoCount: Adding this amount of pseudo counts in the estimation-step of the Baum-Welch algorithm. Default is zero
@@ -281,13 +363,22 @@ There are six python files of interest.
     symbols = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
     hmm = initHMM.initHMM(states, symbols, sample_tree)
     data = {'node': [1], 'state': ['P']}
-    kn_states = pd.DataFrame(data=data, columns=["node", "state"])
+    observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
     data1 = {'node' : [2,3,4], 'state' : ['P','N','P']}
-    kn_verify = pd.DataFrame(data = data1,columns=["node","state"])
-    learntHMM = baumWelch.baumWelch(copy.deepcopy(hmm),observation,kn_states, kn_verify)
+    observed_states_validation_nodes = pd.DataFrame(data = data1,columns=["node","state"])
+    learntHMM = baumWelch.baumWelch(copy.deepcopy(hmm),observation,observed_states_training_nodes, observed_states_validation_nodes)
 
-## Contributors
+
+<!-- LICENSE -->
+## License 
+Distributed under the GNU General Public License v3.0. See `LICENSE` for more information
 
 ## Citations
+* Ask Dr. Pouria
+
+## Acknowledgments
+I want to acknowledge the [R package](https://cran.r-project.org/web/packages/treeHMM/index.html) of Tree HMM by Prajwal Bende from which this package is inspired.
+
+
 
 

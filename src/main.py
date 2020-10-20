@@ -22,20 +22,20 @@ import rpy2.robjects as robjects
 # hmm = initHMM.initHMM(states,symbols,sample_tree)
 # forward_tree_sequence = fwd_seq_gen.fwd_seq_gen(hmm)
 # print(forward_tree_sequence)
-# observation = [["L","L","R","R","L"]]
+# emission_observation = [["L","L","R","R","L"]]
 # backward_tree_sequence = bwd_seq_gen.bwd_seq_gen(hmm)
 #
 #
 # data = {'node':[1], 'state':['P']}
 # kn_states = pd.DataFrame(data = data, columns=["node","state"])
-# #BackwardProbs = backward.backward(hmm,observation,backward_tree_sequence,kn_states)
+# #BackwardProbs = backward.backward(hmm,emission_observation,backward_tree_sequence,kn_states)
 # #Transprob = forward.noisy_or(hmm,states,"P")
-# #ForwardProbs = forward.forward(hmm,observation,forward_tree_sequence,kn_states)
+# #ForwardProbs = forward.forward(hmm,emission_observation,forward_tree_sequence,kn_states)
 # data1 = {'node' : [2,3,4], 'state' : ['P','N','P']}
-# #kn_st = pd.DataFrame(data = data,columns=["node","state"])
-# kn_verify = pd.DataFrame(data = data1,columns=["node","state"])
-# newparam = baumWelch.baumWelchRecursion(copy.deepcopy(hmm),observation,kn_states, kn_verify)
-# learntHMM = baumWelch.baumWelch(copy.deepcopy(hmm),observation,kn_states, kn_verify)
+# #observed_states_training_nodes = pd.DataFrame(data = data,columns=["node","state"])
+# observed_states_validation_nodes = pd.DataFrame(data = data1,columns=["node","state"])
+# newparam = baumWelch.baumWelchRecursion(copy.deepcopy(hmm),emission_observation,kn_states, observed_states_validation_nodes)
+# learntHMM = baumWelch.baumWelch(copy.deepcopy(hmm),emission_observation,kn_states, observed_states_validation_nodes)
 # print("newparam :",newparam)
 # print("\n")
 # print("learntHMM : ",learntHMM)
@@ -81,8 +81,8 @@ import rpy2.robjects as robjects
 #
 # sample_tree = sparse_matrix # adjm.Rdata
 # states = ['P', 'N']
-# observation = col_test_list
-# symbols = [['L', 'M', 'H'] for i in range(len(observation))]
+# emission_observation = col_test_list
+# symbols = [['L', 'M', 'H'] for i in range(len(emission_observation))]
 # state_transition_probabilities = np.array([0.1,0.9,0.1,0.9]).reshape(2,2)
 # hmm = initHMM.initHMM(states, symbols, sample_tree, state_transition_probabilities = state_transition_probabilities)
 # data = {'node': list(robjects.r['kn_train'][0]), 'state': list(robjects.r['kn_train'][1])}  # kn_train.Rdata
@@ -94,11 +94,11 @@ import rpy2.robjects as robjects
 # y = data1.get("node")
 # for i in range(len(y)):
 #     y[i] = y[i] - 1
-# kn_verify = pd.DataFrame(data=data1, columns=["node", "state"])
-# print("New kn_states and kn_verify with flabels_with_impute")
+# observed_states_validation_nodes = pd.DataFrame(data=data1, columns=["node", "state"])
+# print("New kn_states and observed_states_validation_nodes with flabels_with_impute")
 #
-# newparam = baumWelch.baumWelchRecursion(copy.deepcopy(hmm), observation, kn_states, kn_verify)
-# learntHMM = baumWelch.baumWelch(copy.deepcopy(hmm), observation, kn_states, kn_verify)
+# newparam = baumWelch.baumWelchRecursion(copy.deepcopy(hmm), emission_observation, kn_states, observed_states_validation_nodes)
+# learntHMM = baumWelch.baumWelch(copy.deepcopy(hmm), emission_observation, kn_states, observed_states_validation_nodes)
 #
 # print("newparam :", newparam)
 # print("\n")
@@ -142,12 +142,12 @@ import rpy2.robjects as robjects
 # pdb.set_trace()
 # print("CASE 3 : Check backward probs separately")
 
-# forward_probs = forward.forward(hmm, observation, forward_tree_sequence, kn_states)
+# forward_probs = forward.forward(hmm, emission_observation, forward_tree_sequence, kn_states)
 # pdb.set_trace()
 # # print(forward_probs)
 # # forward_probs.to_csv(fwd_probs_test-data.csv, sep='\t')
 #
-# BackwardProbs = backward.backward(hmm,observation,backward_tree_sequence,kn_states)
+# BackwardProbs = backward.backward(hmm,emission_observation,backward_tree_sequence,kn_states)
 # # # BackwardProbs.to_csv('BackwardProbs_main_data.csv')
 # # # print("code complete now debug it")
 # pdb.set_trace()
@@ -174,28 +174,28 @@ def example1():
     # For finding the forward_tree_sequence
     backward_tree_sequence = bwd_seq_gen.bwd_seq_gen(hmm)
 
-    # Declaring the observation list
-    observation = [["L","M","H","M","L","L"],["M","L","H","H","L","L"]]
+    # Declaring the emission_observation list
+    emission_observation = [["L","M","H","M","L","L"],["M","L","H","H","L","L"]]
 
-    # Declaring the kn_states
+    # Declaring the observed_states_training_nodes
     data = {'node' : [0,3,4], 'state' : ['P','N','P']}
-    kn_st = pd.DataFrame(data = data,columns=["node","state"])
+    observed_states_training_nodes = pd.DataFrame(data = data,columns=["node","state"])
 
-    # Declaring the kn+_verify
+    # Declaring the observed_states_validation_nodes
     data1 = {'node' : [1,2], 'state' : ['N','P']}
-    kn_verify = pd.DataFrame(data = data1,columns=["node","state"])
+    observed_states_validation_nodes = pd.DataFrame(data = data1,columns=["node","state"])
 
     # For calculating the forward probabilities
-    # ForwardProbs = forward.forward(hmm,observation,forward_tree_sequence,kn_st)
+    # ForwardProbs = forward.forward(hmm,emission_observation,forward_tree_sequence,observed_states_training_nodes)
     # print(ForwardProbs)
 
     # For calculating the backward probabilities
-    # BackwardProbs = backward.backward(hmm,observation,backward_tree_sequence,kn_st)
+    # BackwardProbs = backward.backward(hmm,emission_observation,backward_tree_sequence,observed_states_training_nodes)
     # print(BackwardProbs)
 
     # The baumWelch part: To find the new parameters and result statistics
-    newparam = baumWelch.baumWelchRecursion(copy.deepcopy(hmm), observation, kn_st, kn_verify)
-    learntHMM = baumWelch.baumWelch(copy.deepcopy(hmm), observation, kn_st, kn_verify)
+    newparam = baumWelch.baumWelchRecursion(copy.deepcopy(hmm), emission_observation, observed_states_training_nodes, observed_states_validation_nodes)
+    learntHMM = baumWelch.baumWelch(copy.deepcopy(hmm), emission_observation, observed_states_training_nodes, observed_states_validation_nodes)
 
     print("newparam :", newparam)
     print("\n")
