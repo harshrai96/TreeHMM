@@ -16,12 +16,12 @@
         * [Activate the virtual environment](#activate-the-virtual-environment)
     * [Installation](#installation)
 * [Package Documentation](#package-documentation)
-  * [initialize_HMM.py : Initializing treeHMM with given parameters](#inithmmpy--initializing-treehmm-with-given-parameters)
-  * [backward_sequence_generator.py : Calculate the order in which nodes in the tree should be traversed during the backward pass(leaves to roots)](#bwd_seq_genpy--calculate-the-order-in-which-nodes-in-the-tree-should-be-traversed-during-the-backward-passleaves-to-roots)
-  * [forward_sequence_generator.py : Calculate the order in which nodes in the tree should be traversed during the forward pass(roots to leaves)](#fwd_seq_genpy--calculate-the-order-in-which-nodes-in-the-tree-should-be-traversed-during-the-forward-passroots-to-leaves)
-  * [backward.py : Infer the backward probabilities for all the nodes of the treeHMM](#backwardpy--infer-the-backward-probabilities-for-all-the-nodes-of-the-treehmm)
-  * [forward.py : It consists of two functions](#forwardpy--it-consists-of-two-functions)
-  * [baumWelch.py : It consists of two functions](#baumwelchpy--it-consists-of-two-functions)
+  * [initialize_HMM.py](#initialize_HMMpy)
+  * [backward_sequence_generator.py](#backward_sequence_generatorpy)
+  * [forward_sequence_generator.py](#forward_sequence_generatorpy)
+  * [backward.py](#backwardpy)
+  * [forward.py](#forwardpy)
+  * [baumWelch.py](#baumwelchpy)
 * [License](#license)
 * [Contributors](#contributors)
 * [Acknowledgments](#acknowledgments)
@@ -129,7 +129,7 @@ There are six python files of interest.
 * baumWelch.py
 
 
-## initialize_HMM.py : Initializing treeHMM with given parameters
+## initialize_HMM.py 
 
 ### Description 
 
@@ -169,10 +169,11 @@ There are six python files of interest.
     hmm = initialize_HMM.initialize_HMM(states, emissions, sample_tree)
 
 
-## backward_sequence_generator.py : Calculate the order in which nodes in the tree should be traversed during the backward pass(leaves to roots)
+## backward_sequence_generator.py 
 
 ### Description
 
+* Calculates the order in which nodes in the tree should be traversed during the backward pass(leaves to roots).
 * Tree is a complex graphical model where we can have multiple parents and multiple children for a node. Hence the order in which the tree should be tranversed becomes significant. Backward algorithm is a dynamic programming problem where to calculate the values at a node, we need the values of the children nodes beforehand, which need to be traversed before this node. This algorithm outputs a possible(not unique) order of the traversal of nodes ensuring that the childrens are traversed first before the parents
 
 ### Usage 
@@ -196,10 +197,11 @@ There are six python files of interest.
     hmm = initialize_HMM.initialize_HMM(states, emissions, sample_tree)
     backward_tree_sequence = backward_sequence_generator.backward_sequence_generator(hmm)
 
-## forward_sequence_generator.py : Calculate the order in which nodes in the tree should be traversed during the forward pass(roots to leaves)
+## forward_sequence_generator.py  
 
 ### Description 
 
+* Calculate the order in which nodes in the tree should be traversed during the forward pass(roots to leaves) 
 * Tree is a complex graphical model where we can have multiple parents and multiple children for a node. Hence the order in which the tree should be tranversed becomes significant. Forward algorithm is a dynamic programming problem where to calculate the values at a node, we need the values of the parent nodes beforehand, which need to be traversed before this node. This algorithm outputs a possible(not unique) order of the traversal of nodes ensuring that the parents are traversed first before the children.
 
 ### Usage 
@@ -223,11 +225,11 @@ There are six python files of interest.
     hmm = initialize_HMM.initialize_HMM(states, emissions, sample_tree)
     forward_tree_sequence = forward_sequence_generator.forward_sequence_generator(hmm)
 
-## backward.py : Infer the backward probabilities for all the nodes of the treeHMM
+## backward.py : 
 
 ### Description 
 
-* backward calculates the backward probabilities for all the nodes
+* Infer the backward probabilities for all the nodes of the treeHMM
 
 ### Usage
 
@@ -260,8 +262,9 @@ There are six python files of interest.
     observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
     backward_probs = backward.backward(hmm, observation, backward_tree_sequence, observed_states_training_nodes)
 
-## forward.py : It consists of two functions
+## forward.py  
 
+It consists of two functions
 * noisy_or
 * forward
 
@@ -327,16 +330,17 @@ There are six python files of interest.
     forward_probs = forward.forward(hmm, observation, forward_tree_sequence, observed_states_training_nodes)
 
 
-## baumWelch.py : It consists of two functions
+## baumWelch.py 
 
+It consists of two functions
 * baumWelchRecursion
-* baumWelch
+* hmm_train_and_test
 
 ## baumWelchRecursion : Implementation of the Baum Welch Algorithm as a special case of EM algorithm
 
 ### Description
 
-* baumWelch recursively calls this function to give a final estimate of parameters for tree HMM. Should not be used directly.
+* hmm_train_and_test function recursively calls this function to give a final estimate of parameters for tree HMM. Should not be used directly.
 
 ### Usage
 
@@ -364,7 +368,7 @@ There are six python files of interest.
     observed_states_validation_nodes = pd.DataFrame(data = data1,columns=["node","state"])
     newparam = baumWelch.baumWelchRecursion(copy.deepcopy(hmm),observation,observed_states_training_nodes, observed_states_validation_nodes)
 
-## baumWelch : Inferring the parameters of a tree Hidden Markov Model via the Baum-Welch algorithm
+## hmm_train_and_test : Inferring the parameters of a tree Hidden Markov Model via the Baum-Welch algorithm
 
 ### Description
 
@@ -372,7 +376,7 @@ There are six python files of interest.
 
 ### Usage
 
-* def baumWelch(hmm, observation, observed_states_training_nodes=None, observed_states_validation_nodes=None, maxIterations=50, delta=1e-5, pseudoCount=0):
+* def hmm_train_and_test(hmm, observation, observed_states_training_nodes=None, observed_states_validation_nodes=None, maxIterations=50, delta=1e-5, pseudoCount=0):
 
 
 ### Arguments
@@ -400,7 +404,7 @@ There are six python files of interest.
     observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
     data1 = {'node' : [2,3,4], 'state' : ['P','N','P']}
     observed_states_validation_nodes = pd.DataFrame(data = data1,columns=["node","state"])
-    learntHMM = baumWelch.baumWelch(copy.deepcopy(hmm),observation,observed_states_training_nodes, observed_states_validation_nodes)
+    learntHMM = baumWelch.hmm_train_and_test(copy.deepcopy(hmm),observation,observed_states_training_nodes, observed_states_validation_nodes)
 
 
 
@@ -408,9 +412,9 @@ There are six python files of interest.
 Distributed under the GNU General Public License v3.0. See `LICENSE` for more information
 
 ## Contributors
-* Harsh Kumar Rai (author and maintainer)
-* Pouria Ramazi (supervisor)
-* Russel Greiner (supervisor)
+* [Harsh Kumar Rai (Guest Scientist)](https://github.com/harshrai96) -- Author 
+* [Pouria Ramazi (UAlberta)](https://www.math.ualberta.ca/~mlewis/people/pramazi.htm) -- Supervisor
+* [Russel Greiner (UAlberta)](https://apps.ualberta.ca/directory/person/rgreiner) -- Supervisor
 
 ## Acknowledgments
 I want to acknowledge the [R package](https://cran.r-project.org/web/packages/treeHMM/index.html) of Tree HMM by Prajwal Bende from which this package is inspired.

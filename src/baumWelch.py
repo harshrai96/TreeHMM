@@ -18,7 +18,7 @@ import scipy
 from scipy.special import logsumexp
 
 # Implementation of the Baum Welch Algorithm as a special case of Expectation Maximization algorithm
-# The function baumWelch recursively calls this function to give a final estimate of parameters for tree HMM
+# The function hmm_train_and_test recursively calls this function to give a final estimate of parameters for tree HMM
 
 # Defining the baumWelchRecursion function
 def baumWelchRecursion(hmm, emission_observation, observed_states_training_nodes=None, observed_states_validation_nodes=None):
@@ -157,9 +157,9 @@ def baumWelchRecursion(hmm, emission_observation, observed_states_training_nodes
 # out AUC and AUPR values after every iteration. Also, validation data must contain more than one instance of either
 # of the possible states
 
-# Defining the baumWelch function
+# Defining the hmm_train_and_test function
 
-def baumWelch(
+def hmm_train_and_test(
         hmm,
         emission_observation,
         observed_states_training_nodes=None,
@@ -298,7 +298,7 @@ def run_an_example_1():
     print(newparam)
 
 def run_an_example_2():
-    """sample run for baumWelch function"""
+    """sample run for hmm_train_and_test function"""
     import initialize_HMM
     import forward_sequence_generator
     import backward_sequence_generator
@@ -314,7 +314,7 @@ def run_an_example_2():
     data1 = {'node' : [2,3,4], 'state' : ['P','N','P']}
     observed_states_validation_nodes = pd.DataFrame(data = data1,columns=["node","state"])
     emission_observation = [["L", "L", "R", "R", "L"]]
-    learntHMM = baumWelch.baumWelch(copy.deepcopy(hmm),emission_observation,observed_states_training_nodes, observed_states_validation_nodes)
+    learntHMM = baumWelch.hmm_train_and_test(copy.deepcopy(hmm),emission_observation,observed_states_training_nodes, observed_states_validation_nodes)
     print(learntHMM)
 
 
