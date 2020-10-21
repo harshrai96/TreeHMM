@@ -23,7 +23,7 @@
   * [forward.py : It consists of two functions](#forwardpy--it-consists-of-two-functions)
   * [baumWelch.py : It consists of two functions](#baumwelchpy--it-consists-of-two-functions)
 * [License](#license)
-* [Citations](#citations)
+* [Contributors](#contributors)
 * [Acknowledgments](#acknowledgments)
 
 ## Concepts Background
