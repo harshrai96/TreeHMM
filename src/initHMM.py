@@ -7,11 +7,11 @@
 import numpy as np
 import pandas as pd
 
-# Defining the initHMM function
+# Defining the initialize_HMM function
 
-def initHMM(
+def initialize_HMM(
         states,
-        symbols,
+        emissions,
         adjacent_symmetry_matrix,
         initial_probabilities=None,
         state_transition_probabilities=None,
@@ -21,7 +21,7 @@ def initHMM(
         states: It is a numpy array with first element being discrete state
             value for the cases(or positive) and second element being discrete
             state value for the controls(or negative) for given treeHMM
-        symbols: It is a list of numpy array consisting discrete values of
+        emissions: It is a list of numpy array consisting discrete values of
             emissions(where "M" is the possible number of emissions) for each
             feature variable
         adjacent_symmetry_matrix: It is the Adjacent Symmetry Matrix that
@@ -41,7 +41,7 @@ def initHMM(
     """
 
     number_of_states = len(states)
-    number_of_levels = len(symbols)
+    number_of_levels = len(emissions)
     emission_probabilities_values = list()
     default_initial_probabilities = np.repeat(
         (1 / number_of_states), number_of_states, axis=0)
@@ -60,15 +60,15 @@ def initHMM(
         transition_probabilities_values = pd.DataFrame(
              data=state_transition_probabilities, index=states, columns=states)
     for i in range(number_of_levels):
-        number_of_symbols = len(symbols[i])
+        number_of_symbols = len(emissions[i])
         emission_probabilities_values.append(np.ones(shape=(number_of_states, number_of_symbols)) * (1 / number_of_symbols))
-        emission_probabilities_values[i] = pd.DataFrame(data=emission_probabilities_values[i], index=states, columns=symbols[i])
+        emission_probabilities_values[i] = pd.DataFrame(data=emission_probabilities_values[i], index=states, columns=emissions[i])
         if emission_probabilities is not None:
-            emission_probabilities_values[i] = pd.DataFrame(data=emission_probabilities, index=states, columns=symbols[i])
+            emission_probabilities_values[i] = pd.DataFrame(data=emission_probabilities, index=states, columns=emissions[i])
 
     return {
         "states": states,
-        "symbols": symbols,
+        "emissions": emissions,
         "initial_probabilities": initial_probabilities_values,
         "state_transition_probabilities": transition_probabilities_values,
         "emission_probabilities": emission_probabilities_values,
@@ -77,13 +77,13 @@ def initHMM(
 
 def run_an_example():
     """
-    sample run for initHMM function
+    sample run for initialize_HMM function
     """
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
                      1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)
     states = ['P', 'N']
-    symbols = [['L', 'R']]
-    hmm = initHMM.initHMM(states, symbols, sample_tree)
+    emissions = [['L', 'R']]
+    hmm = initialize_HMM.initialize_HMM(states, emissions, sample_tree)
 
 if __name__ == "__main__":
     run_an_example()

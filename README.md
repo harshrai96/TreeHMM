@@ -8,7 +8,6 @@
   * [What is a tree?](#what-is-a-tree)
   * [What is a Poly-tree?](#what-is-a-poly-tree)
   * [What is a Tree Hidden Markov model(TreeHMM)?](#what-is-a-tree-hidden-markov-modeltreehmm)
-  * [Why use a TreeHMM?](#why-use-a-treehmm)
   * [What is forward-backward algorithm?](#what-is-forward-backward-algorithm)
   * [What is baum-welch algorithm?](#what-is-baum-welch-algorithm)
 * [Getting Started](#getting-started)
@@ -17,9 +16,9 @@
         * [Activate the virtual environment](#activate-the-virtual-environment)
     * [Installation](#installation)
 * [Package Documentation](#package-documentation)
-  * [initHMM.py : Initializing treeHMM with given parameters](#inithmmpy--initializing-treehmm-with-given-parameters)
-  * [bwd_seq_gen.py : Calculate the order in which nodes in the tree should be traversed during the backward pass(leaves to roots)](#bwd_seq_genpy--calculate-the-order-in-which-nodes-in-the-tree-should-be-traversed-during-the-backward-passleaves-to-roots)
-  * [fwd_seq_gen.py : Calculate the order in which nodes in the tree should be traversed during the forward pass(roots to leaves)](#fwd_seq_genpy--calculate-the-order-in-which-nodes-in-the-tree-should-be-traversed-during-the-forward-passroots-to-leaves)
+  * [initialize_HMM.py : Initializing treeHMM with given parameters](#inithmmpy--initializing-treehmm-with-given-parameters)
+  * [backward_sequence_generator.py : Calculate the order in which nodes in the tree should be traversed during the backward pass(leaves to roots)](#bwd_seq_genpy--calculate-the-order-in-which-nodes-in-the-tree-should-be-traversed-during-the-backward-passleaves-to-roots)
+  * [forward_sequence_generator.py : Calculate the order in which nodes in the tree should be traversed during the forward pass(roots to leaves)](#fwd_seq_genpy--calculate-the-order-in-which-nodes-in-the-tree-should-be-traversed-during-the-forward-passroots-to-leaves)
   * [backward.py : Infer the backward probabilities for all the nodes of the treeHMM](#backwardpy--infer-the-backward-probabilities-for-all-the-nodes-of-the-treehmm)
   * [forward.py : It consists of two functions](#forwardpy--it-consists-of-two-functions)
   * [baumWelch.py : It consists of two functions](#baumwelchpy--it-consists-of-two-functions)
@@ -58,13 +57,11 @@ Tree represents the nodes connected by edges. It is a non-linear data structure.
 * A poly-tree is simply a directed acyclic graph whose underlying undirected graph is a tree.
 
 ### What is a Tree Hidden Markov model(TreeHMM)?
-* Ask Dr. Pouria
+* It is the same as an HMM but where the states are linked via a (poly)tree structure rather than a simple path. 
 
 <img src="https://github.com/harshrai96/TreeHMM/blob/master/Readme_images/Rooted_tree.png" width="600">
 <img src="https://github.com/harshrai96/TreeHMM/blob/master/Readme_images/Polytree_hmm.png" width="600">
 
-### Why use a TreeHMM?
-* Ask Dr. Pouria
 
 ### What is forward-backward algorithm?
 * The Forward–Backward algorithm is the conventional, recursive, efficient
@@ -82,7 +79,7 @@ Tree represents the nodes connected by edges. It is a non-linear data structure.
 
 * The Baum-Welch algorithm is a dynamic programming approach and a 
 special case of the expectation-maximization algorithm (EM algorithm).
-It's purpose is to tune the parameters of the HMM, namely the state 
+The purpose is to tune the parameters of the HMM, namely the state 
 transition matrix, the emission matrix, and the initial state distribution,
 such that the model is maximally like the observed data.
 
@@ -91,7 +88,7 @@ such that the model is maximally like the observed data.
 ### Prerequisites 
 #### Create a virtual environment 
 
-* At its core, the main purpose of Python virtual environments is to create an isolated environment for Python projects. This means that each project can have its own dependencies, regardless of what dependencies every other project has.
+* At it's core, the main purpose of Python virtual environments is to create an isolated environment for Python projects. This means that each project can have it's own dependencies, regardless of what dependencies every other project has.
 
 * On macOS and Linux:
 
@@ -116,19 +113,23 @@ such that the model is maximally like the observed data.
 
 # Package Documentation
 
+This is an extension to normal HMMs where the states are connected via a
+poly-tree structure rather than simply a path. Moreover, upon available data, 
+some of the hidden states can be observed, and hence, can be estimated more 
+accurately."
 This package is based on a R package and is 40% faster than it.
 
 There are six python files of interest.
 
-* initHMM.py
-* bwd_seq_gen.py
-* fwd_seq_gen.py
+* initialize_HMM.py
+* backward_sequence_generator.py
+* forward_sequence_generator.py
 * backward.py
 * forward.py
 * baumWelch.py
 
 
-## initHMM.py : Initializing treeHMM with given parameters
+## initialize_HMM.py : Initializing treeHMM with given parameters
 
 ### Description 
 
@@ -136,12 +137,12 @@ There are six python files of interest.
 
 ### Usage 
 
-* def initHMM(states, symbols, adjacent_symmetry_matrix, initial_probabilities=None, state_transition_probabilities=None, emission_probabilities=None):
+* def initialize_HMM(states, emissions, adjacent_symmetry_matrix, initial_probabilities=None, state_transition_probabilities=None, emission_probabilities=None):
 
 ### Arguments
 
 * states : It is a numpy array with first element being discrete state value for the cases(or positive) and second element being discrete state value for the controls(or negative) for given treeHMM.
-* symbols: It is a list of numpy array consisting discrete values of
+* emissions: It is a list of numpy array consisting discrete values of
             emissions(where "M" is the possible number of emissions) for each
             feature variable
 * adjacent_symmetry_matrix: It is the Adjacent Symmetry Matrix that
@@ -164,11 +165,11 @@ There are six python files of interest.
 
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)
     states = ['P', 'N']
-    symbols = [['L', 'R']]
-    hmm = initHMM.initHMM(states, symbols, sample_tree)
+    emissions = [['L', 'R']]
+    hmm = initialize_HMM.initialize_HMM(states, emissions, sample_tree)
 
 
-## bwd_seq_gen.py : Calculate the order in which nodes in the tree should be traversed during the backward pass(leaves to roots)
+## backward_sequence_generator.py : Calculate the order in which nodes in the tree should be traversed during the backward pass(leaves to roots)
 
 ### Description
 
@@ -176,11 +177,11 @@ There are six python files of interest.
 
 ### Usage 
 
-* def bwd_seq_gen(hmm, number_of_levels=100):
+* def backward_sequence_generator(hmm, number_of_levels=100):
 
 ### Arguments
 
-* hmm: It is a dictionary given as output by initHMM.py file
+* hmm: It is a dictionary given as output by initialize_HMM.py file
 * number_of_levels: No. of levels in the tree, if known. Default is 100
 
 ###  Returns
@@ -191,11 +192,11 @@ There are six python files of interest.
 
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)
     states = ['P', 'N']
-    symbols = [['L', 'R']]
-    hmm = initHMM.initHMM(states, symbols, sample_tree)
-    backward_tree_sequence = bwd_seq_gen.bwd_seq_gen(hmm)
+    emissions = [['L', 'R']]
+    hmm = initialize_HMM.initialize_HMM(states, emissions, sample_tree)
+    backward_tree_sequence = backward_sequence_generator.backward_sequence_generator(hmm)
 
-## fwd_seq_gen.py : Calculate the order in which nodes in the tree should be traversed during the forward pass(roots to leaves)
+## forward_sequence_generator.py : Calculate the order in which nodes in the tree should be traversed during the forward pass(roots to leaves)
 
 ### Description 
 
@@ -203,11 +204,11 @@ There are six python files of interest.
 
 ### Usage 
 
-* def fwd_seq_gen(hmm, number_of_levels=100):
+* def forward_sequence_generator(hmm, number_of_levels=100):
 
 ### Arguments
 
-* hmm: It is a dictionary given as output by initHMM.py file
+* hmm: It is a dictionary given as output by initialize_HMM.py file
 * number_of_levels: No. of levels in the tree, if known. Default is 100
 
 ###  Returns
@@ -218,9 +219,9 @@ There are six python files of interest.
 
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)
     states = ['P', 'N']
-    symbols = [['L', 'R']]
-    hmm = initHMM.initHMM(states, symbols, sample_tree)
-    forward_tree_sequence = fwd_seq_gen.fwd_seq_gen(hmm)
+    emissions = [['L', 'R']]
+    hmm = initialize_HMM.initialize_HMM(states, emissions, sample_tree)
+    forward_tree_sequence = forward_sequence_generator.forward_sequence_generator(hmm)
 
 ## backward.py : Infer the backward probabilities for all the nodes of the treeHMM
 
@@ -234,9 +235,9 @@ There are six python files of interest.
 
 ### Arguments
 
-* hmm: It is a dictionary given as output by initHMM.py file
+* hmm: It is a dictionary given as output by initialize_HMM.py file
 * observation: observation is a list of list consisting "k" lists for "k" features, each vector being a character series of discrete emission values at different nodes serially sorted by node number
-* backward_tree_sequence: It is a list denoting the order of nodes in which the tree should be traversed in backward direction(from leaves to roots).It's the output of bwd_seq_gen function.
+* backward_tree_sequence: It is a list denoting the order of nodes in which the tree should be traversed in backward direction(from leaves to roots).It's the output of backward_sequence_generator function.
 * observed_states_training_nodes: (Optional) It is a (L * 2) dataframe where L is the number of training nodes where state values are known. First column should be the node number and the second column being the corresponding known state values of the nodes.
 
 ### Returns
@@ -251,10 +252,10 @@ There are six python files of interest.
 
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
     states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
-    symbols = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
-    hmm = initHMM.initHMM(states, symbols, sample_tree)
+    emissions = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
+    hmm = initialize_HMM.initialize_HMM(states, emissions, sample_tree)
     observation = [["L", "L", "R", "R", "L"]]
-    backward_tree_sequence = bwd_seq_gen.bwd_seq_gen(hmm)
+    backward_tree_sequence = backward_sequence_generator.backward_sequence_generator(hmm)
     data = {'node': [1], 'state': ['P']}
     observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
     backward_probs = backward.backward(hmm, observation, backward_tree_sequence, observed_states_training_nodes)
@@ -273,7 +274,7 @@ There are six python files of interest.
 * def noisy_or(hmm, prev_state, cur_state):
 
 ### Arguments 
-* hmm: It is a dictionary given as output by initHMM.py file
+* hmm: It is a dictionary given as output by initialize_HMM.py file
 * previous_state: It is a numpy array containing state variable values for the previous nodes
 * current_state: It is a string denoting the state variable value forcurrent node
 
@@ -284,8 +285,8 @@ There are six python files of interest.
 
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
     states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
-    symbols = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
-    hmm = initHMM.initHMM(states, symbols, sample_tree)
+    emissions = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
+    hmm = initialize_HMM.initialize_HMM(states, emissions, sample_tree)
     transition_prob = forward.noisy_or(hmm,states,"P") # for transition from P & N simultaneously to P
 
 ## forward : Infer the forward probabilities for all the nodes of the treeHMM
@@ -300,9 +301,9 @@ There are six python files of interest.
 
 ### Arguments
 
-* hmm: It is a dictionary given as output by initHMM.py file
+* hmm: It is a dictionary given as output by initialize_HMM.py file
 * observation: observation is a list of list consisting "k" lists for "k" features, each vector being a character series of discrete emission values at different nodes serially sorted by node number
-* forward_tree_sequence: It is a list denoting the order of nodes in which the tree should be traversed in backward direction(from leaves to roots).It's the output of bwd_seq_gen function.
+* forward_tree_sequence: It is a list denoting the order of nodes in which the tree should be traversed in backward direction(from leaves to roots).It's the output of backward_sequence_generator function.
 * observed_states_training_nodes: (Optional) It is a (L * 2) dataframe where L is the number of training nodes where state values are known. First column should be the node number and the second column being the corresponding known state values of the nodes.
 
 ### Returns
@@ -317,10 +318,10 @@ There are six python files of interest.
 
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
     states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
-    symbols = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
-    hmm = initHMM.initHMM(states, symbols, sample_tree)
+    emissions = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
+    hmm = initialize_HMM.initialize_HMM(states, emissions, sample_tree)
     observation = [["L", "L", "R", "R", "L"]]
-    forward_tree_sequence = fwd_seq_gen.fwd_seq_gen(hmm)
+    forward_tree_sequence = forward_sequence_generator.forward_sequence_generator(hmm)
     data = {'node': [1], 'state': ['P']}
     observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
     forward_probs = forward.forward(hmm, observation, forward_tree_sequence, observed_states_training_nodes)
@@ -335,7 +336,7 @@ There are six python files of interest.
 
 ### Description
 
-* baumWelch recursively calls this function to give a final estimate of parameters for tree HMM Uses Parallel Processing to speed up calculations for large data. Should not be used directly.
+* baumWelch recursively calls this function to give a final estimate of parameters for tree HMM. Should not be used directly.
 
 ### Usage
 
@@ -343,7 +344,7 @@ There are six python files of interest.
 
 ### Arguments
 
-* hmm: It is a dictionary given as output by initHMM.py file
+* hmm: It is a dictionary given as output by initialize_HMM.py file
 * observation: observation is a list of list consisting "k" lists for "k" features, each vector being a character series of discrete emission values at different nodes serially sorted by node number
 * observed_states_training_nodes: (Optional) It is a (L * 2) dataframe where L is the number of training nodes where state values are known. First column should be the node number and the second column being the corresponding known state values of the nodes
 * observed_states_validation_nodes: (Optional) It is a (L * 2) dataframe where L is the number of validation nodes where state values are known. First column should be the node number and the second column being the corresponding known state values of the nodes
@@ -355,8 +356,8 @@ There are six python files of interest.
 
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
     states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
-    symbols = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
-    hmm = initHMM.initHMM(states, symbols, sample_tree)
+    emissions = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
+    hmm = initialize_HMM.initialize_HMM(states, emissions, sample_tree)
     data = {'node': [1], 'state': ['P']}
     observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
     data1 = {'node' : [2,3,4], 'state' : ['P','N','P']}
@@ -376,7 +377,7 @@ There are six python files of interest.
 
 ### Arguments
 
-* hmm: It is a dictionary given as output by initHMM.py file
+* hmm: It is a dictionary given as output by initialize_HMM.py file
 * observation: observation is a list of list consisting "k" lists for "k" features, each vector being a character series of discrete emission values at different nodes serially sorted by node number
 * observed_states_training_nodes: (Optional) It is a (L * 2) dataframe where L is the number of training nodes where state values are known. First column should be the node number and the second column being the corresponding known state values of the nodes
 * observed_states_validation_nodes: (Optional) It is a (L * 2) dataframe where L is the number of validation nodes where state values are known. First column should be the node number and the second column being the corresponding known state values of the nodes
@@ -386,15 +387,15 @@ There are six python files of interest.
 
 ### Returns
 
-* learntHMM:  A dictionary of three elements, first being the infered HMM whose representation is equivalent to the representation in initHMM, second being a list of statistics of algorithm and third being the final state probability distribution at all nodes.
+* learntHMM:  A dictionary of three elements, first being the infered HMM whose representation is equivalent to the representation in initialize_HMM, second being a list of statistics of algorithm and third being the final state probability distribution at all nodes.
 
 
 ### Examples
 
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
     states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
-    symbols = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
-    hmm = initHMM.initHMM(states, symbols, sample_tree)
+    emissions = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
+    hmm = initialize_HMM.initialize_HMM(states, emissions, sample_tree)
     data = {'node': [1], 'state': ['P']}
     observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
     data1 = {'node' : [2,3,4], 'state' : ['P','N','P']}
@@ -406,8 +407,10 @@ There are six python files of interest.
 ## License 
 Distributed under the GNU General Public License v3.0. See `LICENSE` for more information
 
-## Citations
-* Ask Dr. Pouria
+## Contributors
+* Harsh Kumar Rai (author and maintainer)
+* Pouria Ramazi (supervisor)
+* Russel Greiner (supervisor)
 
 ## Acknowledgments
 I want to acknowledge the [R package](https://cran.r-project.org/web/packages/treeHMM/index.html) of Tree HMM by Prajwal Bende from which this package is inspired.

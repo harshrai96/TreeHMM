@@ -8,8 +8,8 @@ import time
 from sklearn import metrics
 from sklearn.metrics import precision_recall_curve
 from sklearn.metrics import auc
-from fwd_seq_gen import fwd_seq_gen
-from bwd_seq_gen import bwd_seq_gen
+from forward_sequence_generator import forward_sequence_generator
+from backward_sequence_generator import backward_sequence_generator
 from forward import forward
 from backward import backward
 import itertools
@@ -24,7 +24,7 @@ from scipy.special import logsumexp
 def baumWelchRecursion(hmm, emission_observation, observed_states_training_nodes=None, observed_states_validation_nodes=None):
     """
     Args:
-        hmm: It is a dictionary given as output by initHMM.py file
+        hmm: It is a dictionary given as output by initialize_HMM.py file
         emission_observation: emission_observation is a list of list consisting "k" lists for "k"
             features, each vector being a character series of discrete emission
             values at different nodes serially sorted by node number
@@ -42,7 +42,7 @@ def baumWelchRecursion(hmm, emission_observation, observed_states_training_nodes
         probability matrices
     """
     # 'tree_sequence' is the combined sequence consisting of both forward and backward tree sequences
-    tree_sequence = [fwd_seq_gen(hmm), bwd_seq_gen(hmm)]
+    tree_sequence = [forward_sequence_generator(hmm), backward_sequence_generator(hmm)]
     adjacent_symmetry_matrix = hmm["adjacent_symmetry_matrix"]
     Transition_Matrix = hmm["state_transition_probabilities"].copy()
     Transition_Matrix.iloc[:, :] = 0
@@ -136,7 +136,7 @@ def baumWelchRecursion(hmm, emission_observation, observed_states_training_nodes
     for m in range(number_of_levels):
         for x in hmm["states"]:
             sumd = logsumexp(gamma.loc[x, tree_sequence[0]])
-            for s in hmm["symbols"][m]:
+            for s in hmm["emissions"][m]:
                 indi = list(set(np.where(np.array(emission_observation[m]) == s)[0]) & set(tree_sequence[0]))
                 summ = logsumexp(gamma.loc[x, (indi)])
                 Emission_Matrix[m].loc[x, s] = np.exp(summ - sumd)
@@ -168,11 +168,11 @@ def baumWelch(
         delta=1e-5,
         pseudoCount=0):
     """inferred HMM whose representation is equivalent to the representation in
-    initHMM.py, second being a list of statistics of algorithm and third being
+    initialize_HMM.py, second being a list of statistics of algorithm and third being
     the final state probability distribution at all nodes.
 
     Args:
-        hmm: It is a dictionary given as output by initHMM.py file
+        hmm: It is a dictionary given as output by initialize_HMM.py file
         emission_observation: emission_observation is a list of list consisting "k" lists for "k"
             features, each vector being a character series of discrete emission
             values at different nodes serially sorted by node number
@@ -195,7 +195,7 @@ def baumWelch(
             of the Baum-Welch algorithm. Default is zero
 
     Returns:
-        learntHMM: A dictionary of three elements, first being the infered HMM whose representation is equivalent to the representation in initHMM, second being a list of statistics of algorithm and third being the final state probability distribution at all nodes.
+        learntHMM: A dictionary of three elements, first being the infered HMM whose representation is equivalent to the representation in initialize_HMM, second being a list of statistics of algorithm and third being the final state probability distribution at all nodes.
     """
     # 'temporary_hmm' is a copy of the dictionary hmm
     temporary_hmm = copy.deepcopy(hmm)
@@ -282,14 +282,14 @@ def baumWelch(
 
 def run_an_example_1():
     """sample run for baumWelchRecursion function"""
-    import initHMM
+    import initialize_HMM
     import forward
     import backward
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
                         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
     states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
-    symbols = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
-    hmm = initHMM.initHMM(states, symbols, sample_tree)
+    emissions = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
+    hmm = initialize_HMM.initialize_HMM(states, emissions, sample_tree)
     data = {'node': [1], 'state': ['P']}
     observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
     data1 = {'node' : [2,3,4], 'state' : ['P','N','P']}
@@ -299,16 +299,16 @@ def run_an_example_1():
 
 def run_an_example_2():
     """sample run for baumWelch function"""
-    import initHMM
-    import fwd_seq_gen
-    import bwd_seq_gen
+    import initialize_HMM
+    import forward_sequence_generator
+    import backward_sequence_generator
     import baumWelchRecursion
 
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
                         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
     states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
-    symbols = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
-    hmm = initHMM.initHMM(states, symbols, sample_tree)
+    emissions = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
+    hmm = initialize_HMM.initialize_HMM(states, emissions, sample_tree)
     data = {'node': [1], 'state': ['P']}
     observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
     data1 = {'node' : [2,3,4], 'state' : ['P','N','P']}

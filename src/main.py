@@ -18,8 +18,8 @@ import rpy2.robjects as robjects
 # if __name__ == "__main__":
 # sample_tree = np.array([0,0,1,0,0,0,0,1,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0]).reshape(5,5)
 # states = ['P','N']
-# symbols = [['L','R']]
-# hmm = initHMM.initHMM(states,symbols,sample_tree)
+# emissions = [['L','R']]
+# hmm = initHMM.initHMM(states,emissions,sample_tree)
 # forward_tree_sequence = fwd_seq_gen.fwd_seq_gen(hmm)
 # print(forward_tree_sequence)
 # emission_observation = [["L","L","R","R","L"]]
@@ -82,9 +82,9 @@ import rpy2.robjects as robjects
 # sample_tree = sparse_matrix # adjm.Rdata
 # states = ['P', 'N']
 # emission_observation = col_test_list
-# symbols = [['L', 'M', 'H'] for i in range(len(emission_observation))]
+# emissions = [['L', 'M', 'H'] for i in range(len(emission_observation))]
 # state_transition_probabilities = np.array([0.1,0.9,0.1,0.9]).reshape(2,2)
-# hmm = initHMM.initHMM(states, symbols, sample_tree, state_transition_probabilities = state_transition_probabilities)
+# hmm = initHMM.initHMM(states, emissions, sample_tree, state_transition_probabilities = state_transition_probabilities)
 # data = {'node': list(robjects.r['kn_train'][0]), 'state': list(robjects.r['kn_train'][1])}  # kn_train.Rdata
 # x = data.get("node")
 # for i in range(len(x)):
@@ -108,7 +108,7 @@ import rpy2.robjects as robjects
 
 # pdb.set_trace()
 # print(hmm)
-# hmm = initHMM.initHMM(states, symbols, sample_tree)
+# hmm = initHMM.initHMM(states, emissions, sample_tree)
 # print("Bwd_seq inititating")
 # backward_tree_sequence = bwd_seq_gen.bwd_seq_gen(hmm)
 # forward_tree_sequence = fwd_seq_gen.fwd_seq_gen(hmm)
@@ -164,9 +164,9 @@ def example1():
     sample_tree = np.array([0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]).reshape(6,6)
     sparse = csr_matrix(sample_tree)
     states = ['P','N']
-    symbols = [['L','M','H'],['L','M','H']]
+    emissions = [['L','M','H'],['L','M','H']]
     state_transition_probabilities = np.array([0.1,0.9,0.1,0.9]).reshape(2,2)
-    hmm = initHMM.initHMM(states,symbols,sparse,state_transition_probabilities = state_transition_probabilities)
+    hmm = initHMM.initHMM(states,emissions,sparse,state_transition_probabilities = state_transition_probabilities)
 
     # For finding the forward_tree_sequence
     forward_tree_sequence = fwd_seq_gen.fwd_seq_gen(hmm)
