@@ -18,7 +18,7 @@ from scipy.special import logsumexp
 
 # Defining the backward function
 
-def backward(hmm, emission_observation, backward_tree_sequence, observed_states_training_nodes=None,q2=None):
+def backward(hmm, emission_observation, backward_tree_sequence, observed_states_training_nodes=None):
     """
     Args:
         hmm: It is a dictionary given as output by initialize_HMM.py file
@@ -67,8 +67,8 @@ def backward(hmm, emission_observation, backward_tree_sequence, observed_states_
 
     # main for loop to calulate the backward_probabilities
     for k in backward_tree_sequence:
-
-        boolean_value = set([k]).issubset(list(observed_states_training_nodes["node"]))
+        if observed_states_training_nodes is not None:
+            boolean_value = set([k]).issubset(list(observed_states_training_nodes["node"]))
         if boolean_value:
             desired_state = list(observed_states_training_nodes["state"][observed_states_training_nodes["node"] == k])[0]
         next_state = np.nonzero(adjacent_symmetry_matrix[k, :] != 0)[1]

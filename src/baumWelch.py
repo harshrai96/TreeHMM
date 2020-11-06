@@ -51,9 +51,10 @@ def baumWelchRecursion(hmm, emission_observation, observed_states_training_nodes
     for i in range(number_of_levels):
         Emission_Matrix[i].iloc[:, :] = 0
 
-    observed_states_validation_nodes.iloc[:, 1][np.where(observed_states_validation_nodes.iloc[:, 1] == np.array(hmm["states"])[0])[0]] = 1
-    observed_states_validation_nodes.iloc[:, 1][np.where(observed_states_validation_nodes.iloc[:, 1] == np.array(hmm["states"])[1])[0]] = 0
-    observed_states_validation_nodes.iloc[:, 1] = observed_states_validation_nodes.iloc[:, 1].astype('int32')
+    if observed_states_validation_nodes is not None :
+        observed_states_validation_nodes.iloc[:, 1][np.where(observed_states_validation_nodes.iloc[:, 1] == np.array(hmm["states"])[0])[0]] = 1
+        observed_states_validation_nodes.iloc[:, 1][np.where(observed_states_validation_nodes.iloc[:, 1] == np.array(hmm["states"])[1])[0]] = 0
+        observed_states_validation_nodes.iloc[:, 1] = observed_states_validation_nodes.iloc[:, 1].astype('int32')
 
     # 'fwd' and 'bwd' are the forward and backward probabilities calculated with given custom arguments
     fwd = forward(hmm, emission_observation, tree_sequence[0], observed_states_training_nodes)
