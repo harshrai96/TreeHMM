@@ -259,9 +259,9 @@ def hmm_train_and_test(
 
         iter_t.append(iter_time)
 
-        if observed_states_training_nodes is None:
-            gammaa_iter[i] = bw["results"]
-        else:
+        #if observed_states_training_nodes is None:
+        #    gammaa_iter[i] = bw["results"]
+        if observed_states_training_nodes is not None:
             auc_iter.append(bw["results"][0])
             aupr_iter.append(bw["results"][1])
 
