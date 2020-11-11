@@ -2,8 +2,8 @@
 import numpy as np
 import pandas as pd
 import initHMM as initHMM
-import bwd_seq_gen as bwd_seq_gen
-import fwd_seq_gen as fwd_seq_gen
+from bwd_seq_gen import backward_sequence_generator
+from fwd_seq_gen import forward_sequence_generator
 import baumWelch
 import copy
 from scipy.sparse import csr_matrix
@@ -19,10 +19,10 @@ def example1():
     hmm = initHMM.initHMM(states,emissions,sparse,state_transition_probabilities = state_transition_probabilities)
 
     # For finding the forward_tree_sequence
-    forward_tree_sequence = fwd_seq_gen.fwd_seq_gen(hmm)
+    forward_tree_sequence = forward_sequence_generator(hmm)
 
     # For finding the forward_tree_sequence
-    backward_tree_sequence = bwd_seq_gen.bwd_seq_gen(hmm)
+    backward_tree_sequence = forward_sequence_generator(hmm)
 
     # Declaring the emission_observation list
     emission_observation = [["L","M","H","M","L","L"],["M","L","H","H","L","L"]]
@@ -45,12 +45,12 @@ def example1():
 
     # The baumWelch part: To find the new parameters and result statistics
     newparam = baumWelch.baumWelchRecursion(copy.deepcopy(hmm), emission_observation, observed_states_training_nodes, observed_states_validation_nodes)
-    learntHMM = baumWelch.baumWelch(copy.deepcopy(hmm), emission_observation, observed_states_training_nodes, observed_states_validation_nodes)
+    #learntHMM = baumWelch.baumWelch(copy.deepcopy(hmm), emission_observation, observed_states_training_nodes, observed_states_validation_nodes)
 
     print("newparam :", newparam)
     print("\n")
-    print("learntHMM : ", learntHMM)
-    print("\n")
+    #print("learntHMM : ", learntHMM)
+    #print("\n")
 
 if __name__ == "__main__":
     example1()

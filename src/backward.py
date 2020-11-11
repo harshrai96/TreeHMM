@@ -19,7 +19,7 @@ import itertools
 def backward(hmm, emission_observation, backward_tree_sequence, observed_states_training_nodes=None):
     """
     Args:
-        hmm: It is a dictionary given as output by initialize_HMM.py file
+        hmm: It is a dictionary given as output by initHMM.py file
         emission_observation: emission_observation is a list of list consisting "k" lists for "k"
             features, each vector being a character series of discrete emission
             values at different nodes serially sorted by node number
@@ -152,16 +152,16 @@ def backward(hmm, emission_observation, backward_tree_sequence, observed_states_
 
 def run_an_example():
     """sample run for backward function"""
-    import initialize_HMM
-    import backward_sequence_generator
+    import initHMM
+    import bwd_seq_gen
 
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
                             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
     states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
     emissions = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
-    hmm = initialize_HMM.initialize_HMM(states, emissions, sample_tree)
+    hmm = initHMM.initHMM(states, emissions, sample_tree)
     emission_observation = [["L", "L", "R", "R", "L"]]
-    backward_tree_sequence = backward_sequence_generator.backward_sequence_generator(hmm)
+    backward_tree_sequence = bwd_seq_gen.backward_sequence_generator(hmm)
     data = {'node': [1], 'state': ['P']}
     observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
     backward_probs = backward.backward(

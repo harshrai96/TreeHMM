@@ -19,7 +19,7 @@ import pandas as pd
 def forward_sequence_generator(hmm, number_of_levels=100):
     """
       Args:
-          hmm: It is a dictionary given as output by initialize_HMM.py file
+          hmm: It is a dictionary given as output by initHMM.py file
           number_of_levels: No. of levels in the tree, if known. Default is 100
 
       Returns:
@@ -84,14 +84,14 @@ def run_an_example():
     """
     sample run for forward_sequence_generator function
     """
-    import initialize_HMM
+    import initHMM
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
                             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)
     states = ['P', 'N']
     emissions = [['L', 'R']]
-    hmm = initialize_HMM.initialize_HMM(states, emissions, sample_tree)
+    hmm = initHMM.initHMM(states, emissions, sample_tree)
 
-    forward_tree_sequence = forward_sequence_generator.forward_sequence_generator(hmm)
+    forward_tree_sequence = forward_sequence_generator(hmm)
 
 
 if __name__ == "__main__":

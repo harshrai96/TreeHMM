@@ -7,9 +7,9 @@
 import numpy as np
 import pandas as pd
 
-# Defining the initialize_HMM function
+# Defining the initHMM function
 
-def initialize_HMM(
+def initHMM(
         states,
         emissions,
         adjacent_symmetry_matrix,
@@ -77,13 +77,13 @@ def initialize_HMM(
 
 def run_an_example():
     """
-    sample run for initialize_HMM function
+    sample run for initHMM function
     """
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
                      1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)
     states = ['P', 'N']
     emissions = [['L', 'R']]
-    hmm = initialize_HMM.initialize_HMM(states, emissions, sample_tree)
+    hmm = initHMM(states, emissions, sample_tree)
 
 if __name__ == "__main__":
     run_an_example()
