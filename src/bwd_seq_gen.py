@@ -47,7 +47,7 @@ def backward_sequence_generator(hmm, number_of_levels=100):
     # this for loop appends the unique next level in order
     for o in order:
         previous_level = o
-        next_level = np.array([pair_of_nonzero_indices[list(np.where(pair_of_nonzero_indices[:, 1] == i)[0]), 0] for i in previous_level])
+        next_level = np.array([pair_of_nonzero_indices[list(np.where(pair_of_nonzero_indices[:, 1] == i)[0]), 0] for i in previous_level], dtype=object)
         next_level = np.concatenate(next_level)
         if len(next_level) == 0:
             break

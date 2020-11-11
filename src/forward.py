@@ -89,11 +89,14 @@ def forward(hmm, emission_observation, forward_tree_sequence, observed_states_tr
         index=hmm["states"],
         columns=range(number_of_observations))
 
+    # avoid crash
+    if observed_states_training_nodes is None:
+        observed_states_training_nodes = pd.DataFrame(columns=["node","state"])
+        
     for k in forward_tree_sequence:
-        if observed_states_training_nodes is not None:
-            boolean_value = set([k]).issubset(list(observed_states_training_nodes["node"]))
-        if boolean_value:
-            desired_state = list(observed_states_training_nodes["state"][observed_states_training_nodes["node"] == k])[0]
+        boolean_value = set([k]).issubset(list(observed_states_training_nodes["node"]))
+        desired_state = list(observed_states_training_nodes["state"][observed_states_training_nodes["node"] == k])[0] if boolean_value else list()
+        
         previous_state = np.nonzero(adjacent_symmetry_matrix[:, k] != 0)[0]
         length_of_next_state = len(previous_state)
 
