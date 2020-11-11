@@ -6,17 +6,16 @@ from bwd_seq_gen import backward_sequence_generator
 from fwd_seq_gen import forward_sequence_generator
 import baumWelch
 import copy
-from scipy.sparse import csr_matrix
 
 # Sample test variable declaration
 
 def example1():
     sample_tree = np.array([0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]).reshape(6,6)
-    sparse = csr_matrix(sample_tree)
+    #sparse = csr_matrix(sample_tree)
     states = ['P','N']
     emissions = [['L','M','H'],['L','M','H']]
     state_transition_probabilities = np.array([0.1,0.9,0.1,0.9]).reshape(2,2)
-    hmm = initHMM.initHMM(states,emissions,sparse,state_transition_probabilities = state_transition_probabilities)
+    hmm = initHMM.initHMM(states,emissions,sample_tree,state_transition_probabilities = state_transition_probabilities)
 
     # For finding the forward_tree_sequence
     forward_tree_sequence = forward_sequence_generator(hmm)

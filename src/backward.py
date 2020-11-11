@@ -166,7 +166,7 @@ def run_an_example():
     observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
     backward_probs = backward(
         hmm, emission_observation, backward_tree_sequence, observed_states_training_nodes)
-
+    print(backward_probs)
 
 # sample call to the function
 if __name__ == "__main__":

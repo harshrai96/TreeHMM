@@ -92,6 +92,7 @@ def run_an_example():
     hmm = initHMM.initHMM(states, emissions, sample_tree)
 
     forward_tree_sequence = forward_sequence_generator(hmm)
+    print(forward_tree_sequence)
 
 
 if __name__ == "__main__":

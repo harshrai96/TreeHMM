@@ -6,6 +6,7 @@
 
 import numpy as np
 import pandas as pd
+from scipy.sparse import csr_matrix
 
 # Defining the initHMM function
 
@@ -40,6 +41,7 @@ def initHMM(
         hmm: A dictionary describing the parameters of treeHMM
     """
 
+    
     number_of_states = len(states)
     number_of_levels = len(emissions)
     emission_probabilities_values = list()
@@ -66,13 +68,15 @@ def initHMM(
         if emission_probabilities is not None:
             emission_probabilities_values[i] = pd.DataFrame(data=emission_probabilities, index=states, columns=emissions[i])
 
+    sparse_adjacent_symmetry_matrix = csr_matrix(adjacent_symmetry_matrix)
+
     return {
         "states": states,
         "emissions": emissions,
         "initial_probabilities": initial_probabilities_values,
         "state_transition_probabilities": transition_probabilities_values,
         "emission_probabilities": emission_probabilities_values,
-        "adjacent_symmetry_matrix": adjacent_symmetry_matrix}
+        "adjacent_symmetry_matrix": sparse_adjacent_symmetry_matrix}
 
 
 def run_an_example():

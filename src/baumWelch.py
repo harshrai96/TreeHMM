@@ -282,7 +282,8 @@ def hmm_train_and_test(
 def run_an_example_1():
     """sample run for baumWelchRecursion function"""
     import initHMM
-
+    from scipy.sparse import csr_matrix
+    
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
                         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
     states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
@@ -292,13 +293,15 @@ def run_an_example_1():
     observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
     data1 = {'node' : [2,3,4], 'state' : ['P','N','P']}
     observed_states_validation_nodes = pd.DataFrame(data = data1,columns=["node","state"])
+    emission_observation = [["L", "L", "R", "R", "L"]]
     newparam = baumWelchRecursion(copy.deepcopy(hmm),emission_observation,observed_states_training_nodes, observed_states_validation_nodes)
     print(newparam)
 
 def run_an_example_2():
     """sample run for hmm_train_and_test function"""
     import initHMM
-
+    from scipy.sparse import csr_matrix
+    
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
                         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
     states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)

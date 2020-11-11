@@ -90,6 +90,7 @@ def run_an_example():
     hmm = initHMM.initHMM(states, emissions, sample_tree)
 
     backward_tree_sequence = backward_sequence_generator(hmm)
+    print(backward_tree_sequence)
 
 if __name__ == "__main__":
     run_an_example()

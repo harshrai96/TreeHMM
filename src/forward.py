@@ -215,6 +215,7 @@ def run_an_example_2():
     data = {'node': [1], 'state': ['P']}
     observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
     forward_probs = forward(hmm,emission_observation,forward_tree_sequence,observed_states_training_nodes)
+    print(forward_probs)
 
 if __name__ == "__main__":
     run_an_example_1()
