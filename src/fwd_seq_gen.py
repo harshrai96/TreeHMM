@@ -13,8 +13,6 @@
 
 import numpy as np
 import pandas as pd
-import initialize_HMM
-
 
 # Defining the forward_sequence_generator function
 

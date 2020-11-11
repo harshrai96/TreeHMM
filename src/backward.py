@@ -13,8 +13,6 @@ import numpy as np
 import pandas as pd
 import math
 import itertools
-import scipy
-from scipy.special import logsumexp
 
 # Defining the backward function
 

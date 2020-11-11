@@ -12,9 +12,7 @@ from forward_sequence_generator import forward_sequence_generator
 from backward_sequence_generator import backward_sequence_generator
 from forward import forward
 from backward import backward
-import itertools
 import copy
-import scipy
 from scipy.special import logsumexp
 
 # Implementation of the Baum Welch Algorithm as a special case of Expectation Maximization algorithm
