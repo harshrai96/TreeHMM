@@ -197,7 +197,7 @@ def run_an_example_1():
     states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
     emissions = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
     hmm = initHMM.initHMM(states, emissions, sample_tree)
-    transition_prob = forward.noisy_or(hmm,states,"P") # for transition from P & N simultaneously to P
+    transition_prob = noisy_or(hmm,states,"P") # for transition from P & N simultaneously to P
     print(transition_prob)
 
 def run_an_example_2():
@@ -214,7 +214,7 @@ def run_an_example_2():
     forward_tree_sequence = fwd_seq_gen.forward_sequence_generator(hmm)
     data = {'node': [1], 'state': ['P']}
     observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
-    forward_probs = forward.forward(hmm,emission_observation,forward_tree_sequence,observed_states_training_nodes)
+    forward_probs = forward(hmm,emission_observation,forward_tree_sequence,observed_states_training_nodes)
 
 if __name__ == "__main__":
     run_an_example_1()

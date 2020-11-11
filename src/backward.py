@@ -164,7 +164,7 @@ def run_an_example():
     backward_tree_sequence = bwd_seq_gen.backward_sequence_generator(hmm)
     data = {'node': [1], 'state': ['P']}
     observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
-    backward_probs = backward.backward(
+    backward_probs = backward(
         hmm, emission_observation, backward_tree_sequence, observed_states_training_nodes)
 
 
