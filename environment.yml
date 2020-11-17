@@ -1,0 +1,10 @@
+name: treehmm-env
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - numpy
+  - pandas
+  - setuptools
+  - scipy
+  - scikit-learn
