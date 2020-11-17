@@ -12,7 +12,6 @@
 # Importing the libraries
 
 import numpy as np
-import pandas as pd
 
 # Defining the forward_sequence_generator function
 

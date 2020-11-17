@@ -8,10 +8,10 @@ import time
 from sklearn import metrics
 from sklearn.metrics import precision_recall_curve
 from sklearn.metrics import auc
-from fwd_seq_gen import forward_sequence_generator
-from bwd_seq_gen import backward_sequence_generator
-from forward import forward
-from backward import backward
+from treehmm.fwd_seq_gen import forward_sequence_generator
+from treehmm.bwd_seq_gen import backward_sequence_generator
+from treehmm.forward import forward
+from treehmm.backward import backward
 import copy
 from scipy.special import logsumexp
 

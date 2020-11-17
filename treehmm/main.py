@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 import numpy as np
 import pandas as pd
-import initHMM as initHMM
-from bwd_seq_gen import backward_sequence_generator
-from fwd_seq_gen import forward_sequence_generator
-import baumWelch
+import treehmm.initHMM as initHMM
+from treehmm.fwd_seq_gen import forward_sequence_generator
+import treehmm.baumWelch as baumWelch
 import copy
 
 # Sample test variable declaration
