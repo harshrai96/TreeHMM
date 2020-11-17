@@ -26,7 +26,7 @@ setup(
         'Operating System :: OS Independent',
     ],
     package_dir={'': 'src'},
-    packages=find_packages(where='src'),
+    packages=[''],
 
     # install_requires=['peppercorn'],  # Optional
 

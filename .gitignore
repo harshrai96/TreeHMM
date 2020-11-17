@@ -141,4 +141,5 @@ dmypy.json
 ./src/.DS_Store
 ./src/treehmm
 .treehmm
+.vscode
 # End of https://www.toptal.com/developers/gitignore/api/python
