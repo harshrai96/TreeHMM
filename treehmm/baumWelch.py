@@ -137,8 +137,10 @@ def baumWelchRecursion(hmm, emission_observation, observed_states_training_nodes
             sumd = logsumexp(gamma.loc[x, tree_sequence[0]])
             for s in hmm["emissions"][m]:
                 indi = list(set(np.where(np.array(emission_observation[m]) == s)[0]) & set(tree_sequence[0]))
-                summ = logsumexp(gamma.loc[x, (indi)])
-                Emission_Matrix[m].loc[x, s] = np.exp(summ - sumd)
+                if len(indi) > 0:
+                    # if this emissions is observated
+                    summ = logsumexp(gamma.loc[x, (indi)])
+                    Emission_Matrix[m].loc[x, s] = np.exp(summ - sumd)
 
     if observed_states_training_nodes is None:
         return {"Transition_Matrix": Transition_Matrix, "Emission_Matrix": Emission_Matrix, "results": gamma}
