@@ -25,8 +25,7 @@ setup(
         'Programming Language :: Python :: 3 :: Only',
         'Operating System :: OS Independent',
     ],
-    package_dir={'': 'src'},
-    packages=[''],
+    packages=find_packages(),
 
     # install_requires=['peppercorn'],  # Optional
 
