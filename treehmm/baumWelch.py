@@ -203,10 +203,10 @@ def hmm_train_and_test(
     temporary_hmm["state_transition_probabilities"].fillna(0, inplace=True)
 
     number_of_levels = len(emission_observation)
-
-    observed_states_validation_nodes.iloc[:, 1][np.where(observed_states_validation_nodes.iloc[:, 1] == np.array(hmm["states"])[0])[0]] = 1
-    observed_states_validation_nodes.iloc[:, 1][np.where(observed_states_validation_nodes.iloc[:, 1] == np.array(hmm["states"])[1])[0]] = 0
-    observed_states_validation_nodes.iloc[:, 1] = observed_states_validation_nodes.iloc[:, 1].astype('int32')
+    if observed_states_validation_nodes is not None :
+        observed_states_validation_nodes.iloc[:, 1][np.where(observed_states_validation_nodes.iloc[:, 1] == np.array(hmm["states"])[0])[0]] = 1
+        observed_states_validation_nodes.iloc[:, 1][np.where(observed_states_validation_nodes.iloc[:, 1] == np.array(hmm["states"])[1])[0]] = 0
+        observed_states_validation_nodes.iloc[:, 1] = observed_states_validation_nodes.iloc[:, 1].astype('int32')
 
     for m in range(number_of_levels):
         temporary_hmm["emission_probabilities"][m].fillna(0, inplace=True)
