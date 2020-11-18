@@ -48,7 +48,7 @@ def noisy_or(hmm, previous_state, current_state):
 
 # Defining the forward function
 
-def forward(hmm, emission_observation, forward_tree_sequence, observed_states_training_nodes=None):
+def forward(hmm, emission_observation, forward_tree_sequence, observed_states_training_nodes=None, adj_matrix = None):
     """
     Args:
         hmm: It is a dictionary given as output by initHMM.py file
@@ -69,7 +69,7 @@ def forward(hmm, emission_observation, forward_tree_sequence, observed_states_tr
         states and "D" is the total number of nodes in the tree
     """
 
-    adjacent_symmetry_matrix = hmm["adjacent_symmetry_matrix"]
+    adjacent_symmetry_matrix = hmm["adjacent_symmetry_matrix"] if adj_matrix == None else adj_matrix
     hmm["state_transition_probabilities"].fillna(0, inplace=True)
     number_of_levels = len(emission_observation)
     print("Forward loop running")
@@ -92,7 +92,8 @@ def forward(hmm, emission_observation, forward_tree_sequence, observed_states_tr
     # avoid crash
     if observed_states_training_nodes is None:
         observed_states_training_nodes = pd.DataFrame(columns=["node","state"])
-        
+    
+    print(forward_tree_sequence)
     for k in forward_tree_sequence:
         boolean_value = set([k]).issubset(list(observed_states_training_nodes["node"]))
         desired_state = list(observed_states_training_nodes["state"][observed_states_training_nodes["node"] == k])[0] if boolean_value else list()
@@ -137,7 +138,9 @@ def forward(hmm, emission_observation, forward_tree_sequence, observed_states_tr
 
         # 'index_array' is a numpy array comprising the index of all the True values of true_boolean_array
         index_array = np.where(true_boolean_array)[0]
-
+        print(true_boolean_array)
+        print(index_array)
+        
         for state in hmm["states"]:
             logsum = []
 
@@ -211,12 +214,12 @@ def run_an_example_2():
     emissions = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
     hmm = initHMM.initHMM(states, emissions, sample_tree)
     emission_observation = [["L", "L", "R", "R", "L"]]
-    forward_tree_sequence = fwd_seq_gen.forward_sequence_generator(hmm)
+    forward_tree_sequence = fwd_seq_gen.forward_sequence_generator(hmm['adjacent_symmetry_matrix'])
     data = {'node': [1], 'state': ['P']}
     observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
     forward_probs = forward(hmm,emission_observation,forward_tree_sequence,observed_states_training_nodes)
     print(forward_probs)
 
 if __name__ == "__main__":
-    run_an_example_1()
+    #run_an_example_1()
     run_an_example_2()

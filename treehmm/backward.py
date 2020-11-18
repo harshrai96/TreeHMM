@@ -16,7 +16,7 @@ import itertools
 
 # Defining the backward function
 
-def backward(hmm, emission_observation, backward_tree_sequence, observed_states_training_nodes=None):
+def backward(hmm, emission_observation, backward_tree_sequence, observed_states_training_nodes=None, adj_matrix = None):
     """
     Args:
         hmm: It is a dictionary given as output by initHMM.py file
@@ -40,7 +40,7 @@ def backward(hmm, emission_observation, backward_tree_sequence, observed_states_
     if observed_states_training_nodes is None:
         observed_states_training_nodes = pd.DataFrame(columns=["node", "state"])
 
-    adjacent_symmetry_matrix = hmm["adjacent_symmetry_matrix"]
+    adjacent_symmetry_matrix = hmm["adjacent_symmetry_matrix"] if adj_matrix == None else adj_matrix
     hmm["state_transition_probabilities"].fillna(0, inplace=True)
     number_of_levels = len(emission_observation)
 
