@@ -19,6 +19,8 @@ from scipy.special import logsumexp
 # The function hmm_train_and_test recursively calls this function to give a final estimate of parameters for tree HMM
 
 # Defining the baumWelchRecursion function
+eps = 1e-7
+
 def baumWelchRecursion(hmm, emission_observation, observed_states_training_nodes=None, observed_states_validation_nodes=None):
     """
     Args:
@@ -47,7 +49,7 @@ def baumWelchRecursion(hmm, emission_observation, observed_states_training_nodes
     Emission_Matrix = copy.deepcopy(hmm["emission_probabilities"])
     number_of_levels = len(emission_observation)
     for i in range(number_of_levels):
-        Emission_Matrix[i].iloc[:, :] = 0
+        Emission_Matrix[i].iloc[:, :] = eps
 
     if observed_states_validation_nodes is not None :
         observed_states_validation_nodes.iloc[:, 1][np.where(observed_states_validation_nodes.iloc[:, 1] == np.array(hmm["states"])[0])[0]] = 1
