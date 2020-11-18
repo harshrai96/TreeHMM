@@ -42,8 +42,8 @@ def baumWelchRecursion(hmm, emission_observation, observed_states_training_nodes
         probability matrices
     """
     # 'tree_sequence' is the combined sequence consisting of both forward and backward tree sequences
-    tree_sequence = [forward_sequence_generator(hmm), backward_sequence_generator(hmm)]
     adjacent_symmetry_matrix = hmm["adjacent_symmetry_matrix"]
+    tree_sequence = [forward_sequence_generator(adjacent_symmetry_matrix), backward_sequence_generator(adjacent_symmetry_matrix)]
     Transition_Matrix = hmm["state_transition_probabilities"].copy()
     Transition_Matrix.iloc[:, :] = 0
     Emission_Matrix = copy.deepcopy(hmm["emission_probabilities"])
@@ -149,7 +149,6 @@ def baumWelchRecursion(hmm, emission_observation, observed_states_training_nodes
     else:
         return {"Transition_Matrix": Transition_Matrix, "Emission_Matrix": Emission_Matrix,
                 "results": [roc_obj, pr_obj, gamma]}
-
 
 # Inferring the parameters of a tree Hidden Markov Model via the Baum-Welch algorithm
 

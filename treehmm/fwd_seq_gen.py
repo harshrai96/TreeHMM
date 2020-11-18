@@ -15,7 +15,7 @@ import numpy as np
 
 # Defining the forward_sequence_generator function
 
-def forward_sequence_generator(hmm, number_of_levels=100):
+def forward_sequence_generator(adj_mat):
     """
       Args:
           hmm: It is a dictionary given as output by initHMM.py file
@@ -27,7 +27,7 @@ def forward_sequence_generator(hmm, number_of_levels=100):
       """
 
     # "adj_mat" is the value of 'adjacent_symmetry_matrix' key from the dictionary 'hmm'.
-    adj_mat = hmm["adjacent_symmetry_matrix"]
+    #adj_mat = hmm["adjacent_symmetry_matrix"]
     pair_of_nonzero_indices = np.transpose(np.nonzero(adj_mat))
 
     # Use this for pair_of_nonzero_indices when "adj_mat" is sparse matrix and comment the above line.
@@ -90,7 +90,7 @@ def run_an_example():
     emissions = [['L', 'R']]
     hmm = initHMM.initHMM(states, emissions, sample_tree)
 
-    forward_tree_sequence = forward_sequence_generator(hmm)
+    forward_tree_sequence = forward_sequence_generator(hmm['adjacent_symmetry_matrix'])
     print(forward_tree_sequence)
 
 
