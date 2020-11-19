@@ -17,10 +17,10 @@ def example1():
     hmm = initHMM.initHMM(states,emissions,sample_tree,state_transition_probabilities = state_transition_probabilities)
 
     # For finding the forward_tree_sequence
-    forward_tree_sequence = forward_sequence_generator(hmm['adjacent_symmetry_matrix'])
+    forward_tree_sequence = forward_sequence_generator(hmm)
 
     # For finding the forward_tree_sequence
-    backward_tree_sequence = forward_sequence_generator(hmm['adjacent_symmetry_matrix'])
+    backward_tree_sequence = forward_sequence_generator(hmm)
 
     # Declaring the emission_observation list
     emission_observation = [["L","M","H","M","L","L"],["M","L","H","H","L","L"]]

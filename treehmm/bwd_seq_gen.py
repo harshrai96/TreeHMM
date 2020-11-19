@@ -15,7 +15,7 @@ import numpy as np
 
 # Defining the backward_sequence_generator function
 
-def backward_sequence_generator(adj_mat):
+def backward_sequence_generator(hmm, number_of_levels=100):
     """
     Args:
         hmm: It is a dictionary given as output by initHMM.py file
@@ -26,6 +26,7 @@ def backward_sequence_generator(adj_mat):
         nodes in the tree
     """
     # "adj_mat" is the value of 'adjacent_symmetry_matrix' key from the dictionary 'hmm'.
+    adj_mat = hmm["adjacent_symmetry_matrix"]
     pair_of_nonzero_indices = np.transpose(np.nonzero(adj_mat))
 
     # Use this for pair_of_nonzero_indices when "adj_mat" is a sparse matrix and comment the above line.
@@ -88,7 +89,7 @@ def run_an_example():
     emissions = [['L', 'R']]
     hmm = initHMM.initHMM(states, emissions, sample_tree)
 
-    backward_tree_sequence = backward_sequence_generator(hmm['adjacent_symmetry_matrix'])
+    backward_tree_sequence = backward_sequence_generator(hmm)
     print(backward_tree_sequence)
 
 if __name__ == "__main__":
