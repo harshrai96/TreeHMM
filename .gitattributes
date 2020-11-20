@@ -1,0 +1,37 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Explicitly declare text files you want to always be normalized and converted
+# to native line endings on checkout.
+
+# Declare files that will always have LF line endings on checkout.
+# vs onlyfiles
+*.vcproj	eol=crlf
+*.sln       eol=crlf
+# src
+*.sh		eol=lf
+*.cpp       eol=lf
+*.h         eol=lf
+*.py        eol=lf
+# data file
+*.txt       eol=lf
+*.md        eol=lf
+*.cmake     eol=lf
+*.csv       eol=lf
+*.yml       eol=lf
+*.xml       eol=lf
+*.json      eol=lf
+
+# These files are binary and should be left untouched
+# (binary is a macro for -text -diff)
+*.class         binary
+*.dll           binary
+*.ear           binary
+*.gif           binary
+*.ico           binary
+*.jar           binary
+*.jpg           binary
+*.jpeg          binary
+*.png           binary
+*.so            binary
+*.war           binary
