@@ -82,12 +82,12 @@ def run_an_example():
     """
     sample run for backward_sequence_generator function
     """
-    import initHMM
+    from treehmm.initHMM import initHMM
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
                             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)
     states = ['P', 'N']
     emissions = [['L', 'R']]
-    hmm = initHMM.initHMM(states, emissions, sample_tree)
+    hmm = initHMM(states, emissions, sample_tree)
 
     backward_tree_sequence = backward_sequence_generator(hmm)
     print(backward_tree_sequence)

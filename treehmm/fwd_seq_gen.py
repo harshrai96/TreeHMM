@@ -83,12 +83,12 @@ def run_an_example():
     """
     sample run for forward_sequence_generator function
     """
-    import initHMM
+    from treehmm.initHMM import initHMM
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
                             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)
     states = ['P', 'N']
     emissions = [['L', 'R']]
-    hmm = initHMM.initHMM(states, emissions, sample_tree)
+    hmm = initHMM(states, emissions, sample_tree)
 
     forward_tree_sequence = forward_sequence_generator(hmm)
     print(forward_tree_sequence)

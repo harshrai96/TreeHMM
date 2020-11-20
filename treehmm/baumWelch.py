@@ -5,6 +5,7 @@ import pandas as pd
 pd.options.mode.chained_assignment = None
 import math
 import time
+from datetime import datetime
 from sklearn import metrics
 from sklearn.metrics import precision_recall_curve
 from sklearn.metrics import auc
@@ -19,9 +20,9 @@ from scipy.special import logsumexp
 # The function hmm_train_and_test recursively calls this function to give a final estimate of parameters for tree HMM
 
 # Defining the baumWelchRecursion function
-eps = 1e-7
+# eps = 1e-7
 
-def baumWelchRecursion(hmm, emission_observation, observed_states_training_nodes=None, observed_states_validation_nodes=None):
+def baumWelchRecursion(hmm, emission_observation, observed_states_training_nodes=None, observed_states_validation_nodes=None, verbose = False):
     """
     Args:
         hmm: It is a dictionary given as output by initHMM.py file
@@ -49,7 +50,7 @@ def baumWelchRecursion(hmm, emission_observation, observed_states_training_nodes
     Emission_Matrix = copy.deepcopy(hmm["emission_probabilities"])
     number_of_levels = len(emission_observation)
     for i in range(number_of_levels):
-        Emission_Matrix[i].iloc[:, :] = eps
+        Emission_Matrix[i].iloc[:, :] = 0.0
 
     if observed_states_validation_nodes is not None :
         observed_states_validation_nodes.iloc[:, 1][np.where(observed_states_validation_nodes.iloc[:, 1] == np.array(hmm["states"])[0])[0]] = 1
@@ -57,8 +58,8 @@ def baumWelchRecursion(hmm, emission_observation, observed_states_training_nodes
         observed_states_validation_nodes.iloc[:, 1] = observed_states_validation_nodes.iloc[:, 1].astype('int32')
 
     # 'fwd' and 'bwd' are the forward and backward probabilities calculated with given custom arguments
-    fwd = forward(hmm, emission_observation, tree_sequence[0], observed_states_training_nodes)
-    bwd = backward(hmm, emission_observation, tree_sequence[1], observed_states_training_nodes)
+    fwd = forward(hmm, emission_observation, tree_sequence[0], observed_states_training_nodes, verbose)
+    bwd = backward(hmm, emission_observation, tree_sequence[1], observed_states_training_nodes, verbose)
 
     f = fwd
     b = bwd
@@ -72,6 +73,8 @@ def baumWelchRecursion(hmm, emission_observation, observed_states_training_nodes
         else:
             gamma.iloc[:, i] = gamma.iloc[:, i] - summ     # Step where gamma is being normalised
 
+    roc_obj = None
+    pr_obj = None
     if observed_states_training_nodes is not None:
         pred_prob = np.array(np.exp(gamma.loc[hmm["states"][0], observed_states_validation_nodes.iloc[:, 0]]))
         act_prob = observed_states_validation_nodes.iloc[:, 1]
@@ -84,8 +87,8 @@ def baumWelchRecursion(hmm, emission_observation, observed_states_training_nodes
         roc_obj = metrics.roc_auc_score(y, score)
         precision, recall, threshold = precision_recall_curve(y, score)
         pr_obj = auc(recall, precision)
-        print("AUC : ", roc_obj)
-        print("\n")
+        #print("AUC : ", roc_obj)
+        #print("\n")
 
     # 'nonzero_pos_adj_sym_mat_val' gives position of nonzero values in adjacent_symmetry_matrix
     nonzero_pos_adj_sym_mat_val = np.transpose(np.nonzero(adjacent_symmetry_matrix))
@@ -169,7 +172,8 @@ def hmm_train_and_test(
         observed_states_validation_nodes=None,
         maxIterations=50,
         delta=1e-5,
-        pseudoCount=0):
+        pseudoCount=0,
+        verbose = True):
     """inferred HMM whose representation is equivalent to the representation in
     initHMM.py, second being a list of statistics of algorithm and third being
     the final state probability distribution at all nodes.
@@ -219,11 +223,14 @@ def hmm_train_and_test(
     aupr_iter = []
 
     for i in range(maxIterations):
-        print("Iteration_running: ", i)
-        print("\n")
-        start_time_it = time.time()
+        if verbose:
+            print("Iteration: ", i)
+        #print("\n")
+        start_time_it = datetime.now()
 
         bw = baumWelchRecursion(temporary_hmm, emission_observation, observed_states_training_nodes, observed_states_validation_nodes)
+        if len(bw["results"]) == 3:
+            print("AUC:" , bw["results"][0])
 
         TM = bw["Transition_Matrix"].copy()
         EM = copy.deepcopy(bw["Emission_Matrix"])
@@ -247,7 +254,6 @@ def hmm_train_and_test(
 
         d = np.sqrt(np.sum(np.square(np.array(temporary_hmm["state_transition_probabilities"] - TM)))) + summ
         print("Delta:", d)
-        print("\n")
 
         diff.append(d)
 
@@ -256,10 +262,9 @@ def hmm_train_and_test(
         for m in range(number_of_levels):
             temporary_hmm["emission_probabilities"][m] = EM[m]
 
-        end_time_it = time.time()
-        iter_time = end_time_it - start_time_it
-        print("iter_time = ", iter_time)
-        print("\n")
+     
+        iter_time = (datetime.now() - start_time_it).total_seconds()
+        print("time cost = {:2f} seconds".format(iter_time))
 
         iter_t.append(iter_time)
 
@@ -270,8 +275,7 @@ def hmm_train_and_test(
             aupr_iter.append(bw["results"][1])
 
         if np.all(d < delta):
-            print("Convergence reached :")
-            print("\n")
+            print("Convergence has reached")
             break
 
     temporary_hmm["state_transition_probabilities"].fillna(0, inplace=True)
@@ -285,14 +289,13 @@ def hmm_train_and_test(
 
 def run_an_example_1():
     """sample run for baumWelchRecursion function"""
-    import initHMM
-    from scipy.sparse import csr_matrix
+    from treehmm.initHMM import initHMM
     
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
                         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
     states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
     emissions = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
-    hmm = initHMM.initHMM(states, emissions, sample_tree)
+    hmm = initHMM(states, emissions, sample_tree)
     data = {'node': [1], 'state': ['P']}
     observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
     data1 = {'node' : [2,3,4], 'state' : ['P','N','P']}
@@ -303,14 +306,13 @@ def run_an_example_1():
 
 def run_an_example_2():
     """sample run for hmm_train_and_test function"""
-    import initHMM
-    from scipy.sparse import csr_matrix
+    from treehmm.initHMM import initHMM
     
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
                         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
     states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
     emissions = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
-    hmm = initHMM.initHMM(states, emissions, sample_tree)
+    hmm = initHMM(states, emissions, sample_tree)
     data = {'node': [1], 'state': ['P']}
     observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
     data1 = {'node' : [2,3,4], 'state' : ['P','N','P']}

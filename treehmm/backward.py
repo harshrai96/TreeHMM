@@ -16,7 +16,7 @@ import itertools
 
 # Defining the backward function
 
-def backward(hmm, emission_observation, backward_tree_sequence, observed_states_training_nodes=None):
+def backward(hmm, emission_observation, backward_tree_sequence, observed_states_training_nodes=None, verbose = False):
     """
     Args:
         hmm: It is a dictionary given as output by initHMM.py file
@@ -61,14 +61,14 @@ def backward(hmm, emission_observation, backward_tree_sequence, observed_states_
         data=backward_probabilities,
         index=hmm["states"],
         columns=range(number_of_observations))
-    print("Backward loop running")
+    if verbose:
+        print("Backward loop running")
 
     # main for loop to calulate the backward_probabilities
     for k in backward_tree_sequence:
-        if observed_states_training_nodes is not None:
-            boolean_value = set([k]).issubset(list(observed_states_training_nodes["node"]))
-        if boolean_value:
-            desired_state = list(observed_states_training_nodes["state"][observed_states_training_nodes["node"] == k])[0]
+        boolean_value = set([k]).issubset(list(observed_states_training_nodes["node"])) if  observed_states_training_nodes is not None else False
+        desired_state = list(observed_states_training_nodes["state"][observed_states_training_nodes["node"] == k])[0] if boolean_value else None
+
         next_state = np.nonzero(adjacent_symmetry_matrix[k, :] != 0)[1]
         length_of_next_state = len(next_state)
 
@@ -152,20 +152,20 @@ def backward(hmm, emission_observation, backward_tree_sequence, observed_states_
 
 def run_an_example():
     """sample run for backward function"""
-    import initHMM
-    import bwd_seq_gen
+    from treehmm.initHMM import initHMM
+    from treehmm.bwd_seq_gen import backward_sequence_generator
 
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
                             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
     states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
     emissions = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
-    hmm = initHMM.initHMM(states, emissions, sample_tree)
+    hmm = initHMM(states, emissions, sample_tree)
     emission_observation = [["L", "L", "R", "R", "L"]]
-    backward_tree_sequence = bwd_seq_gen.backward_sequence_generator(hmm)
+    backward_tree_sequence = backward_sequence_generator(hmm)
     data = {'node': [1], 'state': ['P']}
     observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
     backward_probs = backward(
-        hmm, emission_observation, backward_tree_sequence, observed_states_training_nodes)
+        hmm, emission_observation, backward_tree_sequence, observed_states_training_nodes, True)
     print(backward_probs)
 
 # sample call to the function
