@@ -13,10 +13,11 @@ from scipy.sparse import csr_matrix
 def initHMM(
         states,
         emissions,
-        adjacent_symmetry_matrix,
         initial_probabilities=None,
         state_transition_probabilities=None,
-        emission_probabilities=None):
+        random_init_state_transition_probabilities = False,
+        emission_probabilities=None,
+        random_init_emission_probabilities = False):
     """
     Args:
         states: It is a numpy array with first element being discrete state
@@ -30,12 +31,16 @@ def initHMM(
         initial_probabilities: It is a numpy array of shape (N * 1) containing
             initial probabilities for the states, where "N" is the possible
             number of states(Optional). Default is equally probable states
+        random_init_state_transition_probabilities: boolean value, if true, random
+            init init_state_transition_probabilities
         state_transition_probabilities: It is a numpy array of shape (N * N)
             containing transition probabilities for the states, where "N" is the
             possible number of states(Optional).
         emission_probabilities: It is a list of numpy arrays of shape (N * M)
             containing emission probabilities for the states, for each feature
             variable(optional). Default is equally probable emissions
+        random_init_emission_probabilities: boolean value, if true, random
+            init init_random_init_emission_probabilities
 
     Returns:
         hmm: A dictionary describing the parameters of treeHMM
@@ -56,28 +61,35 @@ def initHMM(
     if initial_probabilities is not None:
         initial_probabilities_values = dict(zip(states, initial_probabilities))
 
-    if state_transition_probabilities is not None:
+    # random init state transition
+    if random_init_state_transition_probabilities:
+        state_transition_probabilities = np.random.dirichlet(np.ones(number_of_states),size=number_of_states)
+         
+    if state_transition_probabilities is not None: 
         state_transition_probabilities = np.array(
             state_transition_probabilities)
         transition_probabilities_values = pd.DataFrame(
              data=state_transition_probabilities, index=states, columns=states)
+    
+    # init emssion matrices
     for i in range(number_of_levels):
         number_of_symbols = len(emissions[i])
-        emission_probabilities_values.append(np.ones(shape=(number_of_states, number_of_symbols)) * (1 / number_of_symbols))
+        if not random_init_emission_probabilities:
+            # uniform init
+            emission_probabilities_values.append(np.ones(shape=(number_of_states, number_of_symbols)) * (1 / number_of_symbols))
+        else:
+            # random init
+            emission_probabilities_values.append(np.random.dirichlet(np.ones(number_of_symbols),size=number_of_states))
         emission_probabilities_values[i] = pd.DataFrame(data=emission_probabilities_values[i], index=states, columns=emissions[i])
         if emission_probabilities is not None:
-            emission_probabilities_values[i] = pd.DataFrame(data=emission_probabilities, index=states, columns=emissions[i])
-
-    sparse_adjacent_symmetry_matrix = csr_matrix(adjacent_symmetry_matrix)
+            emission_probabilities_values[i] = pd.DataFrame(data=emission_probabilities[i], index=states, columns=emissions[i])
 
     return {
         "states": states,
         "emissions": emissions,
         "initial_probabilities": initial_probabilities_values,
         "state_transition_probabilities": transition_probabilities_values,
-        "emission_probabilities": emission_probabilities_values,
-        "adjacent_symmetry_matrix": sparse_adjacent_symmetry_matrix}
-
+        "emission_probabilities": emission_probabilities_values}
 
 def run_an_example():
     """

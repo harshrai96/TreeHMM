@@ -15,18 +15,15 @@ import numpy as np
 
 # Defining the backward_sequence_generator function
 
-def backward_sequence_generator(hmm, number_of_levels=100):
+def backward_sequence_generator(adj_mat):
     """
     Args:
-        hmm: It is a dictionary given as output by initHMM.py file
-        number_of_levels: No. of levels in the tree, if known. Default is 100
-
+        adj_mat: is the value of 'adjacent_symmetry_matrix' key from the dictionary 'hmm'.
     Returns:
         backward_tree_sequence: A list of size "D", where "D" is the number of
         nodes in the tree
     """
-    # "adj_mat" is the value of 'adjacent_symmetry_matrix' key from the dictionary 'hmm'.
-    adj_mat = hmm["adjacent_symmetry_matrix"]
+    
     pair_of_nonzero_indices = np.transpose(np.nonzero(adj_mat))
 
     # Use this for pair_of_nonzero_indices when "adj_mat" is a sparse matrix and comment the above line.
@@ -82,14 +79,11 @@ def run_an_example():
     """
     sample run for backward_sequence_generator function
     """
-    from treehmm.initHMM import initHMM
+    from scipy.sparse import csr_matrix
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
                             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)
-    states = ['P', 'N']
-    emissions = [['L', 'R']]
-    hmm = initHMM(states, emissions, sample_tree)
 
-    backward_tree_sequence = backward_sequence_generator(hmm)
+    backward_tree_sequence = backward_sequence_generator(csr_matrix(sample_tree))
     print(backward_tree_sequence)
 
 if __name__ == "__main__":

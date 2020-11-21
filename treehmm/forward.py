@@ -48,7 +48,7 @@ def noisy_or(hmm, previous_state, current_state):
 
 # Defining the forward function
 
-def forward(hmm, emission_observation, forward_tree_sequence, observed_states_training_nodes=None, verbose = False):
+def forward(hmm, adjacent_matrix, emission_observation, forward_tree_sequence, observed_states_training_nodes=None, verbose = False):
     """
     Args:
         hmm: It is a dictionary given as output by initHMM.py file
@@ -69,7 +69,6 @@ def forward(hmm, emission_observation, forward_tree_sequence, observed_states_tr
         states and "D" is the total number of nodes in the tree
     """
 
-    adjacent_symmetry_matrix = hmm["adjacent_symmetry_matrix"]
     hmm["state_transition_probabilities"].fillna(0, inplace=True)
     number_of_levels = len(emission_observation)
     if verbose:
@@ -98,7 +97,7 @@ def forward(hmm, emission_observation, forward_tree_sequence, observed_states_tr
         boolean_value = set([k]).issubset(list(observed_states_training_nodes["node"]))
         desired_state = list(observed_states_training_nodes["state"][observed_states_training_nodes["node"] == k])[0] if boolean_value else list()
         
-        previous_state = np.nonzero(adjacent_symmetry_matrix[:, k] != 0)[0]
+        previous_state = np.nonzero(adjacent_matrix[:, k] != 0)[0]
         length_of_next_state = len(previous_state)
 
         if length_of_next_state == 0:
@@ -198,7 +197,7 @@ def run_an_example_1():
                         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
     states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
     emissions = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
-    hmm = initHMM(states, emissions, sample_tree)
+    hmm = initHMM(states, emissions)
     transition_prob = noisy_or(hmm,states,"P") # for transition from P & N simultaneously to P
     print(transition_prob)
 
@@ -206,17 +205,20 @@ def run_an_example_2():
     """sample run for forward function"""
     from treehmm.initHMM import initHMM
     from treehmm.fwd_seq_gen import forward_sequence_generator
+    from scipy.sparse import csr_matrix
 
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
                         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
+    sparse_sample_tree = csr_matrix(sample_tree)
     states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
     emissions = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
-    hmm = initHMM(states, emissions, sample_tree)
+    hmm = initHMM(states, emissions)
     emission_observation = [["L", "L", "R", "R", "L"]]
-    forward_tree_sequence = forward_sequence_generator(hmm)
+    forward_tree_sequence = forward_sequence_generator(sparse_sample_tree)
     data = {'node': [1], 'state': ['P']}
     observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
-    forward_probs = forward(hmm,emission_observation,forward_tree_sequence,observed_states_training_nodes, True)
+
+    forward_probs = forward(hmm, sparse_sample_tree, emission_observation,forward_tree_sequence,observed_states_training_nodes, True)
     print(forward_probs)
 
 if __name__ == "__main__":

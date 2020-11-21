@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 pd.options.mode.chained_assignment = None
 import math
-import time
 from datetime import datetime
 from sklearn import metrics
 from sklearn.metrics import precision_recall_curve
@@ -22,7 +21,7 @@ from scipy.special import logsumexp
 # Defining the baumWelchRecursion function
 # eps = 1e-7
 
-def baumWelchRecursion(hmm, emission_observation, observed_states_training_nodes=None, observed_states_validation_nodes=None, verbose = False):
+def baumWelchRecursion(hmm, adjacent_matrix, emission_observation, observed_states_training_nodes=None, observed_states_validation_nodes=None, verbose = False):
     """
     Args:
         hmm: It is a dictionary given as output by initHMM.py file
@@ -43,8 +42,8 @@ def baumWelchRecursion(hmm, emission_observation, observed_states_training_nodes
         probability matrices
     """
     # 'tree_sequence' is the combined sequence consisting of both forward and backward tree sequences
-    tree_sequence = [forward_sequence_generator(hmm), backward_sequence_generator(hmm)]
-    adjacent_symmetry_matrix = hmm["adjacent_symmetry_matrix"]
+    tree_sequence = [forward_sequence_generator(adjacent_matrix), backward_sequence_generator(adjacent_matrix)]
+
     Transition_Matrix = hmm["state_transition_probabilities"].copy()
     Transition_Matrix.iloc[:, :] = 0
     Emission_Matrix = copy.deepcopy(hmm["emission_probabilities"])
@@ -58,8 +57,8 @@ def baumWelchRecursion(hmm, emission_observation, observed_states_training_nodes
         observed_states_validation_nodes.iloc[:, 1] = observed_states_validation_nodes.iloc[:, 1].astype('int32')
 
     # 'fwd' and 'bwd' are the forward and backward probabilities calculated with given custom arguments
-    fwd = forward(hmm, emission_observation, tree_sequence[0], observed_states_training_nodes, verbose)
-    bwd = backward(hmm, emission_observation, tree_sequence[1], observed_states_training_nodes, verbose)
+    fwd = forward(hmm, adjacent_matrix, emission_observation, tree_sequence[0], observed_states_training_nodes, verbose)
+    bwd = backward(hmm, adjacent_matrix, emission_observation, tree_sequence[1], observed_states_training_nodes, verbose)
 
     f = fwd
     b = bwd
@@ -90,8 +89,8 @@ def baumWelchRecursion(hmm, emission_observation, observed_states_training_nodes
         #print("AUC : ", roc_obj)
         #print("\n")
 
-    # 'nonzero_pos_adj_sym_mat_val' gives position of nonzero values in adjacent_symmetry_matrix
-    nonzero_pos_adj_sym_mat_val = np.transpose(np.nonzero(adjacent_symmetry_matrix))
+    # 'nonzero_pos_adj_sym_mat_val' gives position of nonzero values in adjacent_matrix
+    nonzero_pos_adj_sym_mat_val = np.transpose(np.nonzero(adjacent_matrix))
 
     t_prob = {}
 
@@ -167,6 +166,7 @@ def baumWelchRecursion(hmm, emission_observation, observed_states_training_nodes
 
 def hmm_train_and_test(
         hmm,
+        adjacent_matrix,
         emission_observation,
         observed_states_training_nodes=None,
         observed_states_validation_nodes=None,
@@ -228,7 +228,7 @@ def hmm_train_and_test(
         #print("\n")
         start_time_it = datetime.now()
 
-        bw = baumWelchRecursion(temporary_hmm, emission_observation, observed_states_training_nodes, observed_states_validation_nodes)
+        bw = baumWelchRecursion(temporary_hmm, adjacent_matrix, emission_observation, observed_states_training_nodes, observed_states_validation_nodes)
         if len(bw["results"]) == 3:
             print("AUC:" , bw["results"][0])
 
@@ -290,37 +290,41 @@ def hmm_train_and_test(
 def run_an_example_1():
     """sample run for baumWelchRecursion function"""
     from treehmm.initHMM import initHMM
-    
+    from scipy.sparse import csr_matrix
+
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
                         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
+    sparse_sample_tree = csr_matrix(sample_tree)
+
     states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
     emissions = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
-    hmm = initHMM(states, emissions, sample_tree)
+    hmm = initHMM(states, emissions)
     data = {'node': [1], 'state': ['P']}
     observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
     data1 = {'node' : [2,3,4], 'state' : ['P','N','P']}
     observed_states_validation_nodes = pd.DataFrame(data = data1,columns=["node","state"])
     emission_observation = [["L", "L", "R", "R", "L"]]
-    newparam = baumWelchRecursion(copy.deepcopy(hmm),emission_observation,observed_states_training_nodes, observed_states_validation_nodes)
+    newparam = baumWelchRecursion(copy.deepcopy(hmm), sparse_sample_tree, emission_observation, observed_states_training_nodes, observed_states_validation_nodes)
     print(newparam)
 
 def run_an_example_2():
     """sample run for hmm_train_and_test function"""
     from treehmm.initHMM import initHMM
-    
+    from scipy.sparse import csr_matrix
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
                         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
+    sparse_sample_tree = csr_matrix(sample_tree)
+
     states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
     emissions = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
-    hmm = initHMM(states, emissions, sample_tree)
+    hmm = initHMM(states, emissions)
     data = {'node': [1], 'state': ['P']}
     observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
     data1 = {'node' : [2,3,4], 'state' : ['P','N','P']}
     observed_states_validation_nodes = pd.DataFrame(data = data1,columns=["node","state"])
     emission_observation = [["L", "L", "R", "R", "L"]]
-    learntHMM = hmm_train_and_test(copy.deepcopy(hmm),emission_observation,observed_states_training_nodes, observed_states_validation_nodes)
+    learntHMM = hmm_train_and_test(copy.deepcopy(hmm),sparse_sample_tree, emission_observation,observed_states_training_nodes, observed_states_validation_nodes)
     print(learntHMM)
-
 
 if __name__ == "__main__":
     run_an_example_1()

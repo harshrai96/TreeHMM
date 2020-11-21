@@ -1,26 +1,28 @@
 #!/usr/bin/env python3
 import numpy as np
 import pandas as pd
+from scipy import sparse
 import treehmm.initHMM as initHMM
-from treehmm.fwd_seq_gen import forward_sequence_generator
 import treehmm.baumWelch as baumWelch
 import copy
+from scipy.sparse.csr import csr_matrix
 
 # Sample test variable declaration
 
 def example1():
     sample_tree = np.array([0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]).reshape(6,6)
+    sparse_sample_tree = csr_matrix(sample_tree)
     #sparse = csr_matrix(sample_tree)
     states = ['P','N']
     emissions = [['L','M','H'],['L','M','H']]
     state_transition_probabilities = np.array([0.1,0.9,0.1,0.9]).reshape(2,2)
-    hmm = initHMM.initHMM(states,emissions,sample_tree,state_transition_probabilities = state_transition_probabilities)
+    hmm = initHMM.initHMM(states,emissions,state_transition_probabilities = state_transition_probabilities)
 
     # For finding the forward_tree_sequence
-    # forward_tree_sequence = forward_sequence_generator(hmm)
+    # forward_tree_sequence = forward_sequence_generator(sparse_sample_tree)
 
     # For finding the forward_tree_sequence
-    # backward_tree_sequence = forward_sequence_generator(hmm)
+    # backward_tree_sequence = forward_sequence_generator(sparse_sample_tree)
 
     # Declaring the emission_observation list
     emission_observation = [["L","M","H","M","L","L"],["M","L","H","H","L","L"]]
@@ -42,7 +44,7 @@ def example1():
     # print(BackwardProbs)
 
     # The baumWelch part: To find the new parameters and result statistics
-    newparam = baumWelch.baumWelchRecursion(copy.deepcopy(hmm), emission_observation, observed_states_training_nodes, observed_states_validation_nodes)
+    newparam = baumWelch.baumWelchRecursion(copy.deepcopy(hmm), sparse_sample_tree, emission_observation, observed_states_training_nodes, observed_states_validation_nodes)
     #learntHMM = baumWelch.baumWelch(copy.deepcopy(hmm), emission_observation, observed_states_training_nodes, observed_states_validation_nodes)
 
     print("newparam :", newparam)

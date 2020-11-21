@@ -218,7 +218,7 @@ Examples
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)
     states = ['P', 'N']
     emissions = [['L', 'R']]
-    hmm = initHMM.initHMM(states, emissions, sample_tree)
+    hmm = initHMM.initHMM(states, emissions)
 
 backward\_sequence\_generator.py
 --------------------------------
@@ -263,7 +263,7 @@ Examples
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)
     states = ['P', 'N']
     emissions = [['L', 'R']]
-    hmm = initHMM.initHMM(states, emissions, sample_tree)
+    hmm = initHMM.initHMM(states, emissions)
     backward_tree_sequence = backward_sequence_generator.backward_sequence_generator(hmm)
 
 forward\_sequence\_generator.py
@@ -309,7 +309,7 @@ Examples
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)
     states = ['P', 'N']
     emissions = [['L', 'R']]
-    hmm = initHMM.initHMM(states, emissions, sample_tree)
+    hmm = initHMM.initHMM(states, emissions)
     forward_tree_sequence = forward_sequence_generator.forward_sequence_generator(hmm)
 
 backward.py :
@@ -366,7 +366,7 @@ Examples
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
     states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
     emissions = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
-    hmm = initHMM.initHMM(states, emissions, sample_tree)
+    hmm = initHMM.initHMM(states, emissions)
     observation = [["L", "L", "R", "R", "L"]]
     backward_tree_sequence = backward_sequence_generator.backward_sequence_generator(hmm)
     data = {'node': [1], 'state': ['P']}
@@ -414,7 +414,7 @@ Examples
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
     states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
     emissions = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
-    hmm = initHMM.initHMM(states, emissions, sample_tree)
+    hmm = initHMM.initHMM(states, emissions)
     transition_prob = forward.noisy_or(hmm,states,"P") # for transition from P & N simultaneously to P
 
 forward : Infer the forward probabilities for all the nodes of the treeHMM
@@ -471,7 +471,7 @@ Examples
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
     states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
     emissions = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
-    hmm = initHMM.initHMM(states, emissions, sample_tree)
+    hmm = initHMM.initHMM(states, emissions)
     observation = [["L", "L", "R", "R", "L"]]
     forward_tree_sequence = forward_sequence_generator.forward_sequence_generator(hmm)
     data = {'node': [1], 'state': ['P']}
@@ -531,7 +531,7 @@ Examples
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
     states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
     emissions = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
-    hmm = initHMM.initHMM(states, emissions, sample_tree)
+    hmm = initHMM.initHMM(states, emissions)
     data = {'node': [1], 'state': ['P']}
     observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
     data1 = {'node' : [2,3,4], 'state' : ['P','N','P']}
@@ -603,7 +603,7 @@ Examples
     sample_tree = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape(5, 5)  # for "X" (5 nodes) shaped tree
     states = ['P', 'N']  # "P" represent cases(or positive) and "N" represent controls(or negative)
     emissions = [['L', 'R']]  # one feature with two discrete levels "L" and "R"
-    hmm = initHMM.initHMM(states, emissions, sample_tree)
+    hmm = initHMM.initHMM(states, emissions)
     data = {'node': [1], 'state': ['P']}
     observed_states_training_nodes = pd.DataFrame(data=data, columns=["node", "state"])
     data1 = {'node' : [2,3,4], 'state' : ['P','N','P']}
