@@ -2,7 +2,7 @@ attrs==20.2.0
 cffi==1.14.3
 importlib-metadata==2.0.0
 iniconfig==1.0.1
-Jinja2==2.11.2
+Jinja2==2.11.3
 joblib==0.17.0
 MarkupSafe==1.1.1
 numpy==1.19.2
